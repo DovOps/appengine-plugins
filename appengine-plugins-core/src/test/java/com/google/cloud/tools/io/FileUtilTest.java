@@ -16,30 +16,31 @@
 
 package com.google.cloud.tools.io;
 
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Test for {@link FileUtil} */
 public class FileUtilTest {
 
-  @Rule public TemporaryFolder testDir = new TemporaryFolder();
+  @TempDir
+  public File testDir;
 
   @Test
   public void testCopyDirectory_nested() throws IOException {
-    Path src = testDir.newFolder("src").toPath();
-    Path dest = testDir.newFolder("dest").toPath();
+    Path src = newFolder(testDir, "src").toPath();
+    Path dest = newFolder(testDir, "dest").toPath();
 
     Path rootFile = Files.createFile(src.resolve("root.file"));
     Path subDir = Files.createDirectory(src.resolve("sub"));
@@ -47,9 +48,9 @@ public class FileUtilTest {
 
     FileUtil.copyDirectory(src, dest);
 
-    Assert.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(rootFile))));
-    Assert.assertTrue(Files.isDirectory(dest.resolve(src.relativize(subDir))));
-    Assert.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(subFile))));
+    Assertions.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(rootFile))));
+    Assertions.assertTrue(Files.isDirectory(dest.resolve(src.relativize(subDir))));
+    Assertions.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(subFile))));
   }
 
   @Test
@@ -63,19 +64,19 @@ public class FileUtilTest {
     permission.add(PosixFilePermission.OTHERS_EXECUTE);
     permission.add(PosixFilePermission.OTHERS_WRITE);
 
-    Path src = testDir.newFolder("src").toPath();
-    Path dest = testDir.newFolder("dest").toPath();
+    Path src = newFolder(testDir, "src").toPath();
+    Path dest = newFolder(testDir, "dest").toPath();
 
     Path rootFile = Files.createFile(src.resolve("root1.file"));
-    Assert.assertNotEquals(
-        "This test is useless - modified permissions are default permissions",
+    Assertions.assertNotEquals(
         Files.getPosixFilePermissions(rootFile),
-        permission);
+        permission,
+        "This test is useless - modified permissions are default permissions");
     Files.setPosixFilePermissions(rootFile, permission);
 
     FileUtil.copyDirectory(src, dest);
 
-    Assert.assertEquals(
+    Assertions.assertEquals(
         permission, Files.getPosixFilePermissions(dest.resolve(src.relativize(rootFile))));
   }
 
@@ -87,69 +88,69 @@ public class FileUtilTest {
 
   @Test
   public void testCopyDirectory_badArgs() throws IOException {
-    Path dir = testDir.newFolder().toPath();
-    Path file = testDir.newFile().toPath();
+    Path dir = newFolder(testDir, "junit").toPath();
+    Path file = File.createTempFile("junit", null, testDir).toPath();
 
     try {
       FileUtil.copyDirectory(dir, file);
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertNotNull(ex.getMessage());
+      Assertions.assertNotNull(ex.getMessage());
     }
 
     try {
       FileUtil.copyDirectory(file, dir);
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertNotNull(ex.getMessage());
+      Assertions.assertNotNull(ex.getMessage());
     }
 
     try {
       FileUtil.copyDirectory(dir, dir);
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertNotNull(ex.getMessage());
+      Assertions.assertNotNull(ex.getMessage());
     }
   }
 
   @Test
   public void testCopyDirectory_childPath() throws IOException {
-    Path src = testDir.newFolder().toPath();
+    Path src = newFolder(testDir, "junit").toPath();
     Path dest = Files.createDirectory(src.resolve("subdir"));
 
     try {
       FileUtil.copyDirectory(src, dest);
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("destination is child of source", ex.getMessage());
+      Assertions.assertEquals("destination is child of source", ex.getMessage());
     }
   }
 
   @Test
   public void testCopyDirectory_sameFile() throws IOException {
-    Path src = testDir.newFolder().toPath();
+    Path src = newFolder(testDir, "junit").toPath();
     Path dest = Paths.get(src.toString(), "..", src.getFileName().toString());
 
     try {
       FileUtil.copyDirectory(src, dest);
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("Source and destination are the same", ex.getMessage());
+      Assertions.assertEquals("Source and destination are the same", ex.getMessage());
     }
   }
 
   @Test
   public void testWeirdNames() throws IOException {
-    Path src = testDir.newFolder("funny").toPath();
-    Path dest = testDir.newFolder("funny2").toPath();
+    Path src = newFolder(testDir, "funny").toPath();
+    Path dest = newFolder(testDir, "funny2").toPath();
     FileUtil.copyDirectory(src, dest);
   }
 
   @Test
   public void testCopyDirectory_excludes() throws IOException {
-    Path src = testDir.newFolder("src").toPath();
-    Path dest = testDir.newFolder("dest").toPath();
-    Path destExcludes = testDir.newFolder("dest-with-excludes").toPath();
+    Path src = newFolder(testDir, "src").toPath();
+    Path dest = newFolder(testDir, "dest").toPath();
+    Path destExcludes = newFolder(testDir, "dest-with-excludes").toPath();
 
     Path rootFile = Files.createFile(src.resolve("root.file"));
     Path subDir = Files.createDirectory(src.resolve("sub"));
@@ -160,20 +161,29 @@ public class FileUtilTest {
 
     // control group
     FileUtil.copyDirectory(src, dest);
-    Assert.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(rootFile))));
-    Assert.assertTrue(Files.isDirectory(dest.resolve(src.relativize(subDir))));
-    Assert.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(subFile))));
-    Assert.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(excludedFile))));
-    Assert.assertTrue(Files.isDirectory(dest.resolve(src.relativize(excludedSubDir))));
-    Assert.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(autoExcludedSubFile))));
+    Assertions.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(rootFile))));
+    Assertions.assertTrue(Files.isDirectory(dest.resolve(src.relativize(subDir))));
+    Assertions.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(subFile))));
+    Assertions.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(excludedFile))));
+    Assertions.assertTrue(Files.isDirectory(dest.resolve(src.relativize(excludedSubDir))));
+    Assertions.assertTrue(Files.isRegularFile(dest.resolve(src.relativize(autoExcludedSubFile))));
 
     // test group
     FileUtil.copyDirectory(src, destExcludes, ImmutableList.of(excludedSubDir, excludedFile));
-    Assert.assertTrue(Files.isRegularFile(destExcludes.resolve(src.relativize(rootFile))));
-    Assert.assertTrue(Files.isDirectory(destExcludes.resolve(src.relativize(subDir))));
-    Assert.assertTrue(Files.isRegularFile(destExcludes.resolve(src.relativize(subFile))));
-    Assert.assertFalse(Files.exists(destExcludes.resolve(src.relativize(excludedFile))));
-    Assert.assertFalse(Files.exists(destExcludes.resolve(src.relativize(excludedSubDir))));
-    Assert.assertFalse(Files.exists(destExcludes.resolve(src.relativize(autoExcludedSubFile))));
+    Assertions.assertTrue(Files.isRegularFile(destExcludes.resolve(src.relativize(rootFile))));
+    Assertions.assertTrue(Files.isDirectory(destExcludes.resolve(src.relativize(subDir))));
+    Assertions.assertTrue(Files.isRegularFile(destExcludes.resolve(src.relativize(subFile))));
+    Assertions.assertFalse(Files.exists(destExcludes.resolve(src.relativize(excludedFile))));
+    Assertions.assertFalse(Files.exists(destExcludes.resolve(src.relativize(excludedSubDir))));
+    Assertions.assertFalse(Files.exists(destExcludes.resolve(src.relativize(autoExcludedSubFile))));
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

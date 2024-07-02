@@ -23,17 +23,17 @@ import com.google.cloud.tools.appengine.configuration.StopConfiguration;
 import com.google.cloud.tools.appengine.operations.DevServer;
 import com.google.cloud.tools.maven.cloudsdk.CloudSdkAppEngineFactory;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class StopMojoTest {
 
   @Mock private CloudSdkAppEngineFactory factoryMock;
@@ -41,7 +41,7 @@ public class StopMojoTest {
 
   @InjectMocks private StopMojo stopMojo;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     Mockito.when(factoryMock.devServerStop()).thenReturn(devServerMock);
   }
@@ -60,8 +60,8 @@ public class StopMojoTest {
     ArgumentCaptor<StopConfiguration> captor = ArgumentCaptor.forClass(StopConfiguration.class);
     verify(devServerMock).stop(captor.capture());
 
-    Assert.assertEquals("host", captor.getValue().getHost());
-    Assert.assertEquals(Integer.valueOf(124), captor.getValue().getPort());
+    Assertions.assertEquals("host", captor.getValue().getHost());
+    Assertions.assertEquals(Integer.valueOf(124), captor.getValue().getPort());
   }
 
   @Test

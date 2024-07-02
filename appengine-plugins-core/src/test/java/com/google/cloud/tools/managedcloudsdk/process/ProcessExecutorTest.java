@@ -24,16 +24,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for ProcessExecutor */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ProcessExecutorTest {
 
   @Mock private ProcessExecutor.ProcessBuilderFactory mockProcessBuilderFactory;
@@ -44,7 +44,7 @@ public class ProcessExecutorTest {
   @Mock private AsyncStreamHandler mockStreamHandler;
   private final List<String> command = Arrays.asList("someCommand", "someOption");
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException, InterruptedException {
     Mockito.when(mockProcessBuilderFactory.createProcessBuilder()).thenReturn(mockProcessBuilder);
     Mockito.when(mockProcessBuilder.start()).thenReturn(mockProcess);
@@ -71,7 +71,7 @@ public class ProcessExecutorTest {
     verifyProcessBuilding(command);
     Mockito.verify(mockProcessBuilder).environment();
     Mockito.verify(mockProcessBuilder).directory(fakeWorkingDirectory.toFile());
-    Assert.assertEquals(environmentInput, processEnvironment);
+    Assertions.assertEquals(environmentInput, processEnvironment);
 
     Mockito.verify(mockStreamHandler).handleStream(mockStdOut);
     Mockito.verify(mockStreamHandler).handleStream(mockStdErr);
@@ -88,7 +88,7 @@ public class ProcessExecutorTest {
             .setProcessBuilderFactory(mockProcessBuilderFactory)
             .run(command, null, null, mockStreamHandler, mockStreamHandler);
 
-    Assert.assertEquals(123, exitCode);
+    Assertions.assertEquals(123, exitCode);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class ProcessExecutorTest {
       new ProcessExecutor()
           .setProcessBuilderFactory(mockProcessBuilderFactory)
           .run(command, null, null, mockStreamHandler, mockStreamHandler);
-      Assert.fail("Interrupted exception expected but not thrown.");
+      Assertions.fail("Interrupted exception expected but not thrown.");
     } catch (InterruptedException ex) {
       // pass
     }

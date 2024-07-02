@@ -17,8 +17,8 @@
 package com.google.cloud.tools.appengine.configuration;
 
 import com.google.common.base.Preconditions;
+import jakarta.annotation.Nullable;
 import java.util.Collection;
-import javax.annotation.Nullable;
 
 public class VersionsSelectionConfiguration {
 

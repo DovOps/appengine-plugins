@@ -16,8 +16,8 @@
 
 package com.google.cloud.tools.appengine.operations.cloudsdk.serialization;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CloudSdkConfigTest {
 
@@ -26,11 +26,11 @@ public class CloudSdkConfigTest {
 
   @Test
   public void testGetProject_withValue() {
-    Assert.assertEquals("test-gcp-project", CloudSdkConfig.fromJson(TEST_STRING).getProject());
+    Assertions.assertEquals("test-gcp-project", CloudSdkConfig.fromJson(TEST_STRING).getProject());
   }
 
   @Test
   public void testGetProject_unset() {
-    Assert.assertNull(CloudSdkConfig.fromJson("{}").getProject());
+    Assertions.assertNull(CloudSdkConfig.fromJson("{}").getProject());
   }
 }

@@ -26,15 +26,15 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for {@link com.google.cloud.tools.managedcloudsdk.components.SdkUpdater} */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SdkUpdaterTest {
 
   @Mock private ConsoleListener mockConsoleListener;
@@ -45,7 +45,7 @@ public class SdkUpdaterTest {
 
   private Path fakeGcloudPath;
 
-  @Before
+  @BeforeEach
   public void setUpFakesAndMocks()
       throws InterruptedException, CommandExitException, CommandExecutionException {
     Path root = FileSystems.getDefault().getRootDirectories().iterator().next();

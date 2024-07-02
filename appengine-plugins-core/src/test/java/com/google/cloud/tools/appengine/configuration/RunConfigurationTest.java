@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RunConfigurationTest {
 
@@ -33,7 +33,7 @@ public class RunConfigurationTest {
   private List<String> additionalArguments = new ArrayList<>();
   private Map<String, String> environment = new HashMap<>();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     jvmFlags.add("foo");
     jvmFlags.add("bar");
@@ -57,7 +57,7 @@ public class RunConfigurationTest {
   @Test
   public void testJvmFlags_unset() {
     List<String> flags = RunConfiguration.builder(services).build().getJvmFlags();
-    Assert.assertEquals(0, flags.size());
+    Assertions.assertEquals(0, flags.size());
   }
 
   @Test
@@ -75,13 +75,13 @@ public class RunConfigurationTest {
   }
 
   private void testConfigValues() {
-    Assert.assertEquals(jvmFlags, configuration.getJvmFlags());
-    Assert.assertEquals(Integer.valueOf(999), configuration.getPort());
-    Assert.assertEquals(additionalArguments, configuration.getAdditionalArguments());
-    Assert.assertEquals(environment, configuration.getEnvironment());
-    Assert.assertEquals("host", configuration.getHost());
-    Assert.assertEquals("defaultGcsBucketName", configuration.getDefaultGcsBucketName());
-    Assert.assertEquals("projectId", configuration.getProjectId());
-    Assert.assertEquals(Boolean.TRUE, configuration.getAutomaticRestart());
+    Assertions.assertEquals(jvmFlags, configuration.getJvmFlags());
+    Assertions.assertEquals(Integer.valueOf(999), configuration.getPort());
+    Assertions.assertEquals(additionalArguments, configuration.getAdditionalArguments());
+    Assertions.assertEquals(environment, configuration.getEnvironment());
+    Assertions.assertEquals("host", configuration.getHost());
+    Assertions.assertEquals("defaultGcsBucketName", configuration.getDefaultGcsBucketName());
+    Assertions.assertEquals("projectId", configuration.getProjectId());
+    Assertions.assertEquals(Boolean.TRUE, configuration.getAutomaticRestart());
   }
 }

@@ -16,9 +16,9 @@
 
 package com.google.cloud.tools.maven.it;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.cloud.tools.maven.it.util.UrlUtils;
 import com.google.cloud.tools.maven.it.verifier.StandardVerifier;
@@ -31,15 +31,15 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RunAsyncMojoIntegrationTest extends AbstractMojoIntegrationTest {
 
   private static final String DEV_APP_SERVER_STARTED = "INFO:oejs.Server:main: Started";
   private int serverPort;
 
-  @Before
+  @BeforeEach
   public void initPorts() throws IOException {
     serverPort = SocketUtil.findPort();
   }

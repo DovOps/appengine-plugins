@@ -29,17 +29,17 @@ import com.google.cloud.tools.maven.cloudsdk.CloudSdkAppEngineFactory;
 import java.nio.file.Paths;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** {@link GenRepoInfoFileMojo} unit tests. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GenRepoInfoFileMojoTest {
   @Mock private CloudSdkAppEngineFactory factory;
 
@@ -47,7 +47,7 @@ public class GenRepoInfoFileMojoTest {
 
   @InjectMocks private GenRepoInfoFileMojo genMojo;
 
-  @Before
+  @BeforeEach
   public void init() {
     genMojo.sourceDirectory = Paths.get("/a/b/c/source").toFile();
     genMojo.outputDirectory = Paths.get("/e/f/g/output").toFile();
@@ -63,8 +63,8 @@ public class GenRepoInfoFileMojoTest {
     ArgumentCaptor<GenRepoInfoFileConfiguration> captor =
         ArgumentCaptor.forClass(GenRepoInfoFileConfiguration.class);
     verify(genMock).generate(captor.capture());
-    Assert.assertEquals(genMojo.sourceDirectory.toPath(), captor.getValue().getSourceDirectory());
-    Assert.assertEquals(genMojo.outputDirectory.toPath(), captor.getValue().getOutputDirectory());
+    Assertions.assertEquals(genMojo.sourceDirectory.toPath(), captor.getValue().getSourceDirectory());
+    Assertions.assertEquals(genMojo.outputDirectory.toPath(), captor.getValue().getOutputDirectory());
   }
 
   @Test

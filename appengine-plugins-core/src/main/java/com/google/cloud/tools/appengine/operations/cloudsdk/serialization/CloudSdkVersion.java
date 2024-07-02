@@ -19,11 +19,11 @@ package com.google.cloud.tools.appengine.operations.cloudsdk.serialization;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 
 /**
  * Version of the Cloud SDK, which follows the <a href="http://semver.org/spec/v2.0.0.html">Semantic
@@ -63,7 +63,7 @@ public final class CloudSdkVersion implements Comparable<CloudSdkVersion> {
       Matcher matcher = SEMVER_PATTERN.matcher(version);
       if (!matcher.matches()) {
         throw new IllegalArgumentException(
-            String.format("Pattern \"%s\" is not a valid CloudSdkVersion.", version));
+            "Pattern \"%s\" is not a valid CloudSdkVersion.".formatted(version));
       }
 
       majorVersion = Integer.parseInt(matcher.group("major"));

@@ -16,8 +16,8 @@
 
 package com.google.cloud.tools.libraries.json;
 
+import jakarta.annotation.Nullable;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /** Holds metadata about a single Cloud Library. */
 public final class CloudLibrary {

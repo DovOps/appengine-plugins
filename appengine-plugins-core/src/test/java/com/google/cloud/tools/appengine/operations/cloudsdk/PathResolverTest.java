@@ -17,6 +17,7 @@
 package com.google.cloud.tools.appengine.operations.cloudsdk;
 
 import com.google.cloud.tools.test.utils.LogStoringHandler;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,31 +25,30 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.LogRecord;
-import javax.annotation.Nullable;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 @SuppressWarnings("NullAway")
 public class PathResolverTest {
 
-  @ClassRule public static TemporaryFolder symlinkTestArea = new TemporaryFolder();
+  @TempDir
+  public static File symlinkTestArea;
   @Nullable private static Exception symlinkException = null;
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  public File temporaryFolder;
 
   private PathResolver resolver = new PathResolver();
 
-  @BeforeClass
+  @BeforeAll
   public static void generateSymlinkException() throws IOException {
-    Path dest = symlinkTestArea.newFile().toPath();
+    Path dest = File.createTempFile("junit", null, symlinkTestArea).toPath();
     Path link =
-        symlinkTestArea.getRoot().toPath().resolve("test-link" + System.currentTimeMillis());
+        symlinkTestArea.toPath().resolve("test-link" + System.currentTimeMillis());
     try {
       Files.createSymbolicLink(link, dest);
     } catch (Exception e) {
@@ -58,12 +58,12 @@ public class PathResolverTest {
 
   @Test
   public void testResolve() {
-    Assert.assertNotNull("Could not locate Cloud SDK", resolver.getCloudSdkPath());
+    Assertions.assertNotNull(resolver.getCloudSdkPath(), "Could not locate Cloud SDK");
   }
 
   @Test
   public void testGetRank() {
-    Assert.assertTrue(resolver.getRank() > 10000);
+    Assertions.assertTrue(resolver.getRank() > 10000);
   }
 
   @Test
@@ -71,47 +71,47 @@ public class PathResolverTest {
     List<String> paths =
         PathResolver.getLocationsFromPath(
             "\\my music & videos" + "google-cloud-sdk" + File.separator + "bin");
-    Assert.assertEquals(1, paths.size());
-    Assert.assertEquals("\\my music & videosgoogle-cloud-sdk", paths.get(0));
+    Assertions.assertEquals(1, paths.size());
+    Assertions.assertEquals("\\my music & videosgoogle-cloud-sdk", paths.getFirst());
   }
 
   @Test
   public void testUnquote() {
     String actual = PathResolver.unquote("\"only remove \"\" end quotes\"");
-    Assert.assertEquals("only remove \"\" end quotes", actual);
+    Assertions.assertEquals("only remove \"\" end quotes", actual);
   }
 
   @Test
   public void testGetLocationFromLink_valid() throws IOException {
-    Assume.assumeNoException(symlinkException);
-    Path sdkHome = temporaryFolder.newFolder().toPath().toRealPath();
+    Assumptions.assumeNoException(symlinkException);
+    Path sdkHome = newFolder(temporaryFolder, "junit").toPath().toRealPath();
     Path bin = Files.createDirectory(sdkHome.resolve("bin"));
     Path gcloud = Files.createFile(bin.resolve("gcloud"));
-    Files.createSymbolicLink(temporaryFolder.getRoot().toPath().resolve("gcloud"), gcloud);
+    Files.createSymbolicLink(temporaryFolder.toPath().resolve("gcloud"), gcloud);
 
     List<String> possiblePaths = new ArrayList<>();
     PathResolver.getLocationsFromLink(possiblePaths, gcloud);
 
-    Assert.assertEquals(1, possiblePaths.size());
-    Assert.assertEquals(gcloud.getParent().getParent().toString(), possiblePaths.get(0));
+    Assertions.assertEquals(1, possiblePaths.size());
+    Assertions.assertEquals(gcloud.getParent().getParent().toString(), possiblePaths.getFirst());
   }
 
   @Test
   public void testGetLocationFromLink_notValid() throws IOException {
-    Assume.assumeNoException(symlinkException);
-    Path invalidPath = temporaryFolder.newFolder().toPath();
-    Files.createSymbolicLink(temporaryFolder.getRoot().toPath().resolve("gcloud"), invalidPath);
+    Assumptions.assumeNoException(symlinkException);
+    Path invalidPath = newFolder(temporaryFolder, "junit").toPath();
+    Files.createSymbolicLink(temporaryFolder.toPath().resolve("gcloud"), invalidPath);
 
     List<String> possiblePaths = new ArrayList<>();
 
     PathResolver.getLocationsFromLink(possiblePaths, invalidPath);
 
-    Assert.assertEquals(0, possiblePaths.size());
+    Assertions.assertEquals(0, possiblePaths.size());
   }
 
   @Test
   public void testGetLocationFromLink_triggerException() throws IOException {
-    Assume.assumeNoException(symlinkException);
+    Assumptions.assumeNoException(symlinkException);
     LogStoringHandler testHandler = LogStoringHandler.getForLogger(PathResolver.class.getName());
 
     Path exceptionForcingPath = Mockito.mock(Path.class);
@@ -121,11 +121,20 @@ public class PathResolverTest {
     List<String> possiblePaths = new ArrayList<>();
     PathResolver.getLocationsFromLink(possiblePaths, exceptionForcingPath);
 
-    Assert.assertEquals(1, testHandler.getLogs().size());
-    LogRecord logRecord = testHandler.getLogs().get(0);
+    Assertions.assertEquals(1, testHandler.getLogs().size());
+    LogRecord logRecord = testHandler.getLogs().getFirst();
 
-    Assert.assertEquals(
+    Assertions.assertEquals(
         "Non-critical exception when searching for cloud-sdk", logRecord.getMessage());
-    Assert.assertEquals(exception, logRecord.getThrown());
+    Assertions.assertEquals(exception, logRecord.getThrown());
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

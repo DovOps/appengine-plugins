@@ -16,7 +16,7 @@
 
 package com.google.cloud.tools.appengine.operations.cloudsdk.process;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -24,13 +24,13 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.internal.process.Wai
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LegacyProcessHandlerTest {
 
   @Mock private ProcessOutputLineListener stdOut;
@@ -44,7 +44,7 @@ public class LegacyProcessHandlerTest {
   private final List<ProcessStartListener> startListeners = new ArrayList<>();
   private final List<ProcessExitListener> exitListeners = new ArrayList<>();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     when(watcherFactory.newLineListener(anyInt())).thenReturn(watcher);
   }

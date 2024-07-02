@@ -24,16 +24,16 @@ import java.nio.file.Paths;
 import java.util.List;
 import org.apache.maven.model.Build;
 import org.apache.maven.project.MavenProject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AbstractRunMojoTest {
   private static class AbstractRunMojoImpl extends AbstractRunMojo {
     @Override
@@ -53,7 +53,7 @@ public class AbstractRunMojoTest {
 
   @InjectMocks private final AbstractRunMojoImpl testMojo = new AbstractRunMojoImpl();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     Build build = Mockito.mock(Build.class);
     Mockito.when(mavenProject.getBuild()).thenReturn(build);
@@ -65,20 +65,20 @@ public class AbstractRunMojoTest {
   public void testGetServices_null() throws NoSuchFieldException, IllegalAccessException {
     testMojo.injectServices(null);
     List<Path> expected = ImmutableList.of(Paths.get("fake-build-dir/fake-final-name"));
-    Assert.assertEquals(expected, testMojo.getServices());
+    Assertions.assertEquals(expected, testMojo.getServices());
   }
 
   @Test
   public void testGetServices_empty() throws NoSuchFieldException, IllegalAccessException {
     testMojo.injectServices(ImmutableList.of());
     List<Path> expected = ImmutableList.of(Paths.get("fake-build-dir/fake-final-name"));
-    Assert.assertEquals(expected, testMojo.getServices());
+    Assertions.assertEquals(expected, testMojo.getServices());
   }
 
   @Test
   public void testGetServices_validList() throws NoSuchFieldException, IllegalAccessException {
     testMojo.injectServices(ImmutableList.of(new File("some-service-location")));
-    Assert.assertEquals(
+    Assertions.assertEquals(
         ImmutableList.of(Paths.get("some-service-location")), testMojo.getServices());
   }
 }

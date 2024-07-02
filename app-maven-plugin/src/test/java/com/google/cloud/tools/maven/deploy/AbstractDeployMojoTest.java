@@ -16,15 +16,15 @@
 package com.google.cloud.tools.maven.deploy;
 
 import org.apache.maven.plugin.logging.Log;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AbstractDeployMojoTest {
 
   @InjectMocks
@@ -43,7 +43,7 @@ public class AbstractDeployMojoTest {
     testMojo.project = "someProject";
 
     String projectId = testMojo.getProjectId();
-    Assert.assertEquals("someProject", projectId);
+    Assertions.assertEquals("someProject", projectId);
     Mockito.verify(mockLog)
         .warn(
             "Configuring <project> is deprecated, use <projectId> to set your Google Cloud ProjectId");
@@ -57,9 +57,9 @@ public class AbstractDeployMojoTest {
 
     try {
       testMojo.getProjectId();
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "Configuring <project> and <projectId> is not allowed, please use only <projectId>",
           ex.getMessage());
     }
@@ -68,7 +68,7 @@ public class AbstractDeployMojoTest {
   @Test
   public void testGetProjectId_onlyProjectId() {
     testMojo.projectId = "someProjectId";
-    Assert.assertEquals("someProjectId", testMojo.getProjectId());
+    Assertions.assertEquals("someProjectId", testMojo.getProjectId());
     Mockito.verifyNoMoreInteractions(mockLog);
   }
 }

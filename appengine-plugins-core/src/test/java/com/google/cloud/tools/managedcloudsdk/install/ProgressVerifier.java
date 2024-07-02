@@ -17,7 +17,7 @@
 package com.google.cloud.tools.managedcloudsdk.install;
 
 import com.google.cloud.tools.managedcloudsdk.ProgressListener;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -35,7 +35,7 @@ public class ProgressVerifier {
       sum += update;
     }
 
-    Assert.assertEquals(total, sum);
+    Assertions.assertEquals(total, sum);
 
     Mockito.verify(mockProgressListener).done();
     Mockito.verifyNoMoreInteractions(mockProgressListener);

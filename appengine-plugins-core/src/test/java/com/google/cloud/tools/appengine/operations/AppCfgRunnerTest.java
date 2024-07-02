@@ -24,22 +24,23 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.internal.process.Pro
 import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandler;
 import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandlerException;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AppCfgRunnerTest {
 
-  @Rule public TemporaryFolder testFolder = new TemporaryFolder();
+  @TempDir
+  public File testFolder;
 
   @Mock private CloudSdk sdk;
   @Mock private ProcessBuilderFactory processBuilderFactory;
@@ -50,11 +51,11 @@ public class AppCfgRunnerTest {
   private Path appengineToolsJar;
   private Path appengineJavaSdkPath;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
-    javaExecutablePath = testFolder.getRoot().toPath().resolve("java.fake");
-    appengineToolsJar = testFolder.getRoot().toPath().resolve("appengine.tools");
-    appengineJavaSdkPath = testFolder.getRoot().toPath().resolve("appengine-sdk-root");
+    javaExecutablePath = testFolder.toPath().resolve("java.fake");
+    appengineToolsJar = testFolder.toPath().resolve("appengine.tools");
+    appengineJavaSdkPath = testFolder.toPath().resolve("appengine-sdk-root");
     when(sdk.getJavaExecutablePath()).thenReturn(javaExecutablePath);
     when(sdk.getAppEngineToolsJar()).thenReturn(appengineToolsJar);
     when(sdk.getAppEngineSdkForJavaPath()).thenReturn(appengineJavaSdkPath);
@@ -85,6 +86,6 @@ public class AppCfgRunnerTest {
     Mockito.verifyNoMoreInteractions(processBuilder);
 
     Mockito.verify(processHandler).handleProcess(process);
-    Assert.assertEquals(appengineJavaSdkPath.toString(), System.getProperty("appengine.sdk.root"));
+    Assertions.assertEquals(appengineJavaSdkPath.toString(), System.getProperty("appengine.sdk.root"));
   }
 }

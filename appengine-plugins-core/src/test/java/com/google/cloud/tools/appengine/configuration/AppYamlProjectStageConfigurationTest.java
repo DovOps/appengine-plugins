@@ -16,20 +16,20 @@
 
 package com.google.cloud.tools.appengine.configuration;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AppYamlProjectStageConfigurationTest {
 
   private AppYamlProjectStageConfiguration configuration;
   private Path file = Paths.get("");
 
-  @Before
+  @BeforeEach
   public void setUp() {
     // todo should the constructor check these are not the same and
     // files are files and directories are directories?
@@ -49,9 +49,9 @@ public class AppYamlProjectStageConfigurationTest {
           .appEngineDirectory(file)
           .stagingDirectory(file)
           .build();
-      Assert.fail("allowed missing artifact path");
+      Assertions.fail("allowed missing artifact path");
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("No artifact supplied", ex.getMessage());
+      Assertions.assertEquals("No artifact supplied", ex.getMessage());
     }
   }
 
@@ -59,9 +59,9 @@ public class AppYamlProjectStageConfigurationTest {
   public void testStagingDirectoryRequired() {
     try {
       AppYamlProjectStageConfiguration.builder().appEngineDirectory(file).artifact(file).build();
-      Assert.fail("allowed missing artifact path");
+      Assertions.fail("allowed missing artifact path");
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("No staging directory supplied", ex.getMessage());
+      Assertions.assertEquals("No staging directory supplied", ex.getMessage());
     }
   }
 
@@ -69,9 +69,9 @@ public class AppYamlProjectStageConfigurationTest {
   public void testAppEngineDirectoryRequired() {
     try {
       AppYamlProjectStageConfiguration.builder().stagingDirectory(file).artifact(file).build();
-      Assert.fail("allowed missing artifact path");
+      Assertions.fail("allowed missing artifact path");
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("No AppEngine directory supplied", ex.getMessage());
+      Assertions.assertEquals("No AppEngine directory supplied", ex.getMessage());
     }
   }
 

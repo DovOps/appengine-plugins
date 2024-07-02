@@ -32,16 +32,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CloudSdkAppEngineFactoryTest {
 
   private final Path CLOUD_SDK_HOME = Paths.get("google-cloud-sdk");
@@ -59,7 +59,7 @@ public class CloudSdkAppEngineFactoryTest {
 
   @InjectMocks private CloudSdkAppEngineFactory factory;
 
-  @Before
+  @BeforeEach
   public void wireUp() {
     when(mojoMock.getCloudSdkHome()).thenReturn(CLOUD_SDK_HOME);
     when(mojoMock.getCloudSdkVersion()).thenReturn(null);
@@ -104,7 +104,7 @@ public class CloudSdkAppEngineFactoryTest {
         CloudSdkAppEngineFactory.buildCloudSdk(mojoMock, cloudSdkChecker, cloudSdkDownloader, true);
 
     // verify
-    Assert.assertEquals(INSTALL_SDK_PATH, sdk.getPath());
+    Assertions.assertEquals(INSTALL_SDK_PATH, sdk.getPath());
     verify(cloudSdkDownloader)
         .downloadIfNecessary(
             CLOUD_SDK_VERSION, logMock, ImmutableList.of(SdkComponent.APP_ENGINE_JAVA), false);
@@ -121,7 +121,7 @@ public class CloudSdkAppEngineFactoryTest {
         CloudSdkAppEngineFactory.buildCloudSdk(mojoMock, cloudSdkChecker, cloudSdkDownloader, true);
 
     // verify
-    Assert.assertEquals(INSTALL_SDK_PATH, sdk.getPath());
+    Assertions.assertEquals(INSTALL_SDK_PATH, sdk.getPath());
     verify(cloudSdkDownloader)
         .downloadIfNecessary(null, logMock, ImmutableList.of(SdkComponent.APP_ENGINE_JAVA), false);
     verifyNoMoreInteractions(cloudSdkChecker);
@@ -137,7 +137,7 @@ public class CloudSdkAppEngineFactoryTest {
     CloudSdk sdk =
         CloudSdkAppEngineFactory.buildCloudSdk(mojoMock, cloudSdkChecker, cloudSdkDownloader, true);
 
-    Assert.assertEquals(INSTALL_SDK_PATH, sdk.getPath());
+    Assertions.assertEquals(INSTALL_SDK_PATH, sdk.getPath());
     verify(cloudSdkDownloader)
         .downloadIfNecessary(null, logMock, ImmutableList.of(SdkComponent.APP_ENGINE_JAVA), true);
     verify(mavenSession).isOffline();
@@ -156,7 +156,7 @@ public class CloudSdkAppEngineFactoryTest {
             mojoMock, cloudSdkChecker, cloudSdkDownloader, false);
 
     // verify
-    Assert.assertEquals(CLOUD_SDK_HOME, sdk.getPath());
+    Assertions.assertEquals(CLOUD_SDK_HOME, sdk.getPath());
     verify(cloudSdkChecker).checkCloudSdk(sdk, CLOUD_SDK_VERSION);
     verifyNoMoreInteractions(cloudSdkDownloader);
     verifyNoMoreInteractions(cloudSdkChecker);
@@ -174,7 +174,7 @@ public class CloudSdkAppEngineFactoryTest {
         CloudSdkAppEngineFactory.buildCloudSdk(mojoMock, cloudSdkChecker, cloudSdkDownloader, true);
 
     // verify
-    Assert.assertEquals(CLOUD_SDK_HOME, sdk.getPath());
+    Assertions.assertEquals(CLOUD_SDK_HOME, sdk.getPath());
     verify(cloudSdkChecker).checkCloudSdk(sdk, CLOUD_SDK_VERSION);
     verify(cloudSdkChecker).checkForAppEngine(sdk);
     verifyNoMoreInteractions(cloudSdkDownloader);
@@ -192,7 +192,7 @@ public class CloudSdkAppEngineFactoryTest {
             mojoMock, cloudSdkChecker, cloudSdkDownloader, false);
 
     // verify
-    Assert.assertEquals(CLOUD_SDK_HOME, sdk.getPath());
+    Assertions.assertEquals(CLOUD_SDK_HOME, sdk.getPath());
     verifyNoMoreInteractions(cloudSdkDownloader);
     verifyNoMoreInteractions(cloudSdkChecker);
   }

@@ -16,10 +16,10 @@
 
 package com.google.cloud.tools.managedcloudsdk.install;
 
+import jakarta.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 
 /** Operating System specific install script command line provider. */
 interface InstallScriptProvider {

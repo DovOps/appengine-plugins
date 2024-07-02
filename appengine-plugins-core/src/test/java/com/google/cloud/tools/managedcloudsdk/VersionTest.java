@@ -16,30 +16,30 @@
 
 package com.google.cloud.tools.managedcloudsdk;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /** Tests for {@link com.google.cloud.tools.managedcloudsdk.Version} */
 public class VersionTest {
 
   @Test
   public void testNewVersion_defaultLatest() {
-    Assert.assertEquals("LATEST", Version.LATEST.getVersion());
+    Assertions.assertEquals("LATEST", Version.LATEST.getVersion());
   }
 
   @Test
   public void testNewVersion_valid() throws BadCloudSdkVersionException {
     Version version = new Version("111.000.000");
-    Assert.assertEquals("111.000.000", version.getVersion());
+    Assertions.assertEquals("111.000.000", version.getVersion());
   }
 
   @Test
   public void testNewVersion_invalid() {
     try {
       new Version("1");
-      Assert.fail("did not detect invalid version");
+      Assertions.fail("did not detect invalid version");
     } catch (BadCloudSdkVersionException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "Version must match [number].[number].[number] for example 100.0.0", ex.getMessage());
     }
   }

@@ -16,7 +16,7 @@
 
 package com.google.cloud.tools.appengine.configuration;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class VersionsListConfiguration {
 

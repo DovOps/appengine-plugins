@@ -21,7 +21,7 @@ import com.google.cloud.tools.maven.it.verifier.StandardVerifier;
 import java.io.IOException;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** {@link GenRepoInfoFileMojo} integration tests. */
 public class GenRepoInfoFileMojoIntegrationTest extends AbstractMojoIntegrationTest {

@@ -18,8 +18,8 @@ package com.google.cloud.tools.appengine.configuration;
 
 import com.google.cloud.tools.appengine.operations.Deployment;
 import com.google.common.base.Preconditions;
+import jakarta.annotation.Nullable;
 import java.nio.file.Path;
-import javax.annotation.Nullable;
 
 /** Configuration for {@link Deployment} project-level yaml deployments. */
 public class DeployProjectConfigurationConfiguration {

@@ -26,13 +26,13 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.CloudSdkNotFoundExce
 import com.google.cloud.tools.appengine.operations.cloudsdk.CloudSdkOutOfDateException;
 import com.google.cloud.tools.appengine.operations.cloudsdk.CloudSdkVersionFileException;
 import com.google.cloud.tools.appengine.operations.cloudsdk.serialization.CloudSdkVersion;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CloudSdkCheckerTest {
 
   @Mock private CloudSdk sdk;
@@ -45,9 +45,9 @@ public class CloudSdkCheckerTest {
     when(sdk.getVersion()).thenReturn(new CloudSdkVersion("190.0.0"));
     try {
       cloudSdkChecker.checkCloudSdk(sdk, "191.0.0");
-      Assert.fail();
+      Assertions.fail();
     } catch (RuntimeException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "Specified Cloud SDK version (191.0.0) does not match installed version (190.0.0).",
           ex.getMessage());
     }

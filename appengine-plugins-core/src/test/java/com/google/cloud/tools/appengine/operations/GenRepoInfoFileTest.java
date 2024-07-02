@@ -23,8 +23,8 @@ import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class GenRepoInfoFileTest {
@@ -33,7 +33,7 @@ public class GenRepoInfoFileTest {
   public void testNullSdk() {
     try {
       new GenRepoInfoFile(null);
-      Assert.fail("allowed null SDK");
+      Assertions.fail("allowed null SDK");
     } catch (NullPointerException expected) {
     }
   }

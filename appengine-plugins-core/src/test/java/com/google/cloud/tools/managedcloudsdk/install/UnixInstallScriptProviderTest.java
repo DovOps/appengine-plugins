@@ -20,9 +20,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 public class UnixInstallScriptProviderTest {
 
@@ -31,23 +31,23 @@ public class UnixInstallScriptProviderTest {
     try {
       new UnixInstallScriptProvider(Collections.emptyMap())
           .getScriptCommandLine(Paths.get("relative/path"));
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException e) {
-      Assert.assertEquals("non-absolute SDK path", e.getMessage());
+      Assertions.assertEquals("non-absolute SDK path", e.getMessage());
     }
   }
 
   @Test
   public void testGetScriptCommandLine() {
-    Assume.assumeFalse(System.getProperty("os.name").startsWith("Windows"));
+    Assumptions.assumeFalse(System.getProperty("os.name").startsWith("Windows"));
 
     Path sdkRoot = Paths.get("/path/to/sdk");
     List<String> commandLine =
         new UnixInstallScriptProvider(Collections.emptyMap()).getScriptCommandLine(sdkRoot);
 
-    Assert.assertEquals(1, commandLine.size());
-    Path scriptPath = Paths.get(commandLine.get(0));
-    Assert.assertTrue(scriptPath.isAbsolute());
-    Assert.assertEquals(Paths.get("/path/to/sdk/install.sh"), scriptPath);
+    Assertions.assertEquals(1, commandLine.size());
+    Path scriptPath = Paths.get(commandLine.getFirst());
+    Assertions.assertTrue(scriptPath.isAbsolute());
+    Assertions.assertEquals(Paths.get("/path/to/sdk/install.sh"), scriptPath);
   }
 }

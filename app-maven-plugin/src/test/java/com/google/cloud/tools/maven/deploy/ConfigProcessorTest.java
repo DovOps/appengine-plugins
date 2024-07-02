@@ -16,18 +16,18 @@
 
 package com.google.cloud.tools.maven.deploy;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.cloud.tools.maven.cloudsdk.ConfigReader;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConfigProcessorTest {
 
   private static final String PROJECT_BUILD = "project-build";
@@ -39,13 +39,13 @@ public class ConfigProcessorTest {
 
   @Test
   public void testProcessProjectId_fromBuildConfig() {
-    Assert.assertEquals(PROJECT_BUILD, testProcessor.processProjectId(PROJECT_BUILD));
+    Assertions.assertEquals(PROJECT_BUILD, testProcessor.processProjectId(PROJECT_BUILD));
   }
 
   @Test
   public void testProcessProjectId_fromGcloud() {
     Mockito.when(configReader.getProjectId()).thenReturn("test-from-gcloud");
-    Assert.assertEquals(
+    Assertions.assertEquals(
         "test-from-gcloud", testProcessor.processProjectId(ConfigReader.GCLOUD_CONFIG));
   }
 
@@ -55,7 +55,7 @@ public class ConfigProcessorTest {
       testProcessor.processProjectId(ConfigReader.APPENGINE_CONFIG);
       fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals(ConfigProcessor.PROJECT_ERROR, ex.getMessage());
+      Assertions.assertEquals(ConfigProcessor.PROJECT_ERROR, ex.getMessage());
     }
   }
 
@@ -65,18 +65,18 @@ public class ConfigProcessorTest {
       testProcessor.processProjectId(null);
       fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals(ConfigProcessor.PROJECT_ERROR, ex.getMessage());
+      Assertions.assertEquals(ConfigProcessor.PROJECT_ERROR, ex.getMessage());
     }
   }
 
   @Test
   public void testProcessVersion_fromBuildConfig() {
-    Assert.assertEquals(VERSION_BUILD, testProcessor.processProjectId(VERSION_BUILD));
+    Assertions.assertEquals(VERSION_BUILD, testProcessor.processProjectId(VERSION_BUILD));
   }
 
   @Test
   public void testProcessVersion_fromGcloud() {
-    Assert.assertNull(testProcessor.processVersion(ConfigReader.GCLOUD_CONFIG));
+    Assertions.assertNull(testProcessor.processVersion(ConfigReader.GCLOUD_CONFIG));
   }
 
   @Test
@@ -85,7 +85,7 @@ public class ConfigProcessorTest {
       testProcessor.processVersion(ConfigReader.APPENGINE_CONFIG);
       fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals(ConfigProcessor.VERSION_ERROR, ex.getMessage());
+      Assertions.assertEquals(ConfigProcessor.VERSION_ERROR, ex.getMessage());
     }
   }
 
@@ -95,7 +95,7 @@ public class ConfigProcessorTest {
       testProcessor.processVersion(null);
       fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals(ConfigProcessor.VERSION_ERROR, ex.getMessage());
+      Assertions.assertEquals(ConfigProcessor.VERSION_ERROR, ex.getMessage());
     }
   }
 }

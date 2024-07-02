@@ -29,6 +29,8 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.serialization.CloudS
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -43,8 +45,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /** Cloud SDK CLI wrapper. */
 public class CloudSdk {
@@ -95,7 +95,7 @@ public class CloudSdk {
       List<String> lines = Files.readAllLines(versionFile, StandardCharsets.UTF_8);
       if (lines.size() > 0) {
         // expect only a single line
-        contents = lines.get(0);
+        contents = lines.getFirst();
       }
       return new CloudSdkVersion(contents);
     } catch (IOException ex) {
@@ -245,8 +245,10 @@ public class CloudSdk {
       throws AppEngineJavaComponentsNotInstalledException {
     if (!Files.isDirectory(getAppEngineSdkForJavaPath())) {
       throw new AppEngineJavaComponentsNotInstalledException(
-          "Validation Error: Java App Engine components not installed."
-              + " Fix by running 'gcloud components install app-engine-java' on command-line.");
+          """
+          Validation Error: Java App Engine components not installed.\
+           Fix by running 'gcloud components install app-engine-java' on command-line.\
+          """);
     }
     if (!Files.isRegularFile(jarLocations.get(JAVA_TOOLS_JAR))) {
       throw new AppEngineJavaComponentsNotInstalledException(
@@ -327,8 +329,10 @@ public class CloudSdk {
         }
       }
       throw new CloudSdkNotFoundException(
-          "The Google Cloud SDK could not be found in the customary"
-              + " locations and no path was provided.");
+          """
+          The Google Cloud SDK could not be found in the customary\
+           locations and no path was provided.\
+          """);
     }
 
     /** Return the configured SDK resolvers. */

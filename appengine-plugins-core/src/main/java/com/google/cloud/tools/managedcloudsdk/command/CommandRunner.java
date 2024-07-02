@@ -19,12 +19,12 @@ package com.google.cloud.tools.managedcloudsdk.command;
 import com.google.cloud.tools.managedcloudsdk.ConsoleListener;
 import com.google.cloud.tools.managedcloudsdk.process.ProcessExecutor;
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 /** Execute a command and redirect output to handlers. */
 public class CommandRunner {

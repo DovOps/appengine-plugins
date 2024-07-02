@@ -17,8 +17,8 @@
 package com.google.cloud.tools.managedcloudsdk.command;
 
 import java.nio.charset.StandardCharsets;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /** Tests for {@link AsyncStreamSaverFactory.CollectingByteHandler}. */
 public class CollectingByteHandlerTest {
@@ -29,7 +29,7 @@ public class CollectingByteHandlerTest {
         new AsyncStreamSaverFactory.CollectingByteHandler();
     testHandler.bytes("line1\n".getBytes(StandardCharsets.UTF_8), 6);
     testHandler.bytes("line2\n".getBytes(StandardCharsets.UTF_8), 6);
-    Assert.assertEquals("line1\nline2\n", testHandler.getResult());
+    Assertions.assertEquals("line1\nline2\n", testHandler.getResult());
   }
 
   @Test
@@ -38,6 +38,6 @@ public class CollectingByteHandlerTest {
         new AsyncStreamSaverFactory.CollectingByteHandler();
     testHandler.bytes("line1\n123".getBytes(StandardCharsets.UTF_8), 6);
     testHandler.bytes("line2\n456".getBytes(StandardCharsets.UTF_8), 6);
-    Assert.assertEquals("line1\nline2\n", testHandler.getResult());
+    Assertions.assertEquals("line1\nline2\n", testHandler.getResult());
   }
 }

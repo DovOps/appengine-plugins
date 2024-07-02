@@ -16,11 +16,11 @@
 
 package com.google.cloud.tools.appengine.operations.cloudsdk.internal.args;
 
+import jakarta.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 
 /** Command Line argument helper for gcloud based commands. */
 public class GcloudArgs {

@@ -26,25 +26,26 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.AppEngineJavaCompone
 import com.google.cloud.tools.appengine.operations.cloudsdk.InvalidJavaSdkException;
 import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandlerException;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Unit tests for {@link AppEngineWebXmlProjectStaging}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AppEngineWebXmlProjectStagingTest {
 
-  @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
+  @TempDir
+  public File tmpDir;
 
   @Mock private AppCfgRunner appCfgRunner;
 
@@ -54,13 +55,13 @@ public class AppEngineWebXmlProjectStagingTest {
   private AppEngineWebXmlProjectStaging staging;
   private AppEngineWebXmlProjectStageConfiguration.Builder builder;
 
-  @Before
+  @BeforeEach
   public void setUp()
       throws IOException, InvalidJavaSdkException, ProcessHandlerException,
           AppEngineJavaComponentsNotInstalledException {
-    source = tmpDir.newFolder("source").toPath();
-    destination = tmpDir.newFolder("destination").toPath();
-    dockerfile = tmpDir.newFile("dockerfile").toPath();
+    source = newFolder(tmpDir, "source").toPath();
+    destination = newFolder(tmpDir, "destination").toPath();
+    dockerfile = File.createTempFile("dockerfile", null, tmpDir).toPath();
 
     staging = new AppEngineWebXmlProjectStaging(appCfgRunner);
 
@@ -83,9 +84,9 @@ public class AppEngineWebXmlProjectStagingTest {
   public void testSourceDirectoryRequired() {
     try {
       AppEngineWebXmlProjectStageConfiguration.builder().stagingDirectory(destination).build();
-      Assert.fail("allowed missing source directory");
+      Assertions.fail("allowed missing source directory");
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("No source directory supplied", ex.getMessage());
+      Assertions.assertEquals("No source directory supplied", ex.getMessage());
     }
   }
 
@@ -93,9 +94,9 @@ public class AppEngineWebXmlProjectStagingTest {
   public void testStagingDirectoryRequired() {
     try {
       AppEngineWebXmlProjectStageConfiguration.builder().sourceDirectory(destination).build();
-      Assert.fail("allowed missing staging directory");
+      Assertions.fail("allowed missing staging directory");
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("No staging directory supplied", ex.getMessage());
+      Assertions.assertEquals("No staging directory supplied", ex.getMessage());
     }
   }
 
@@ -164,5 +165,14 @@ public class AppEngineWebXmlProjectStagingTest {
     staging.stageStandard(builder.build());
 
     verify(appCfgRunner, times(1)).run(eq(expected));
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

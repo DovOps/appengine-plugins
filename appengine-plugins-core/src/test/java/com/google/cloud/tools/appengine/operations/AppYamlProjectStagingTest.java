@@ -16,11 +16,11 @@
 
 package com.google.cloud.tools.appengine.operations;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,6 +31,7 @@ import com.google.cloud.tools.appengine.AppEngineException;
 import com.google.cloud.tools.appengine.configuration.AppYamlProjectStageConfiguration;
 import com.google.cloud.tools.test.utils.LogStoringHandler;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -40,20 +41,20 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Test the {@link AppYamlProjectStaging} functionality. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AppYamlProjectStagingTest {
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  public File temporaryFolder;
 
   private AppYamlProjectStageConfiguration config;
   @Mock private AppYamlProjectStaging.CopyService copyService;
@@ -66,16 +67,16 @@ public class AppYamlProjectStagingTest {
   private Path dockerFile;
   private Path artifact;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     handler = LogStoringHandler.getForLogger(AppYamlProjectStaging.class.getName());
-    appEngineDirectory = temporaryFolder.newFolder().toPath();
-    dockerDirectory = temporaryFolder.newFolder().toPath();
+    appEngineDirectory = newFolder(temporaryFolder, "junit").toPath();
+    dockerDirectory = newFolder(temporaryFolder, "junit").toPath();
     extraFilesDirectories =
         ImmutableList.of(
-            temporaryFolder.newFolder().toPath(), temporaryFolder.newFolder().toPath());
-    stagingDirectory = temporaryFolder.newFolder().toPath();
-    artifact = temporaryFolder.newFile("artifact.jar").toPath();
+            newFolder(temporaryFolder, "junit").toPath(), newFolder(temporaryFolder, "junit").toPath());
+    stagingDirectory = newFolder(temporaryFolder, "junit").toPath();
+    artifact = File.createTempFile("artifact.jar", null, temporaryFolder).toPath();
 
     dockerFile = dockerDirectory.resolve("Dockerfile");
     Files.createFile(dockerFile);
@@ -155,7 +156,7 @@ public class AppYamlProjectStagingTest {
     config =
         AppYamlProjectStageConfiguration.builder()
             .appEngineDirectory(appEngineDirectory)
-            .artifact(temporaryFolder.newFile("myscript.sh").toPath())
+            .artifact(File.createTempFile("myscript.sh", null, temporaryFolder).toPath())
             .stagingDirectory(stagingDirectory)
             .extraFilesDirectories(extraFilesDirectories)
             .build();
@@ -189,7 +190,7 @@ public class AppYamlProjectStagingTest {
   }
 
   private void stageArchive_gen2BinaryWithoutEntrypoint(String runtime) throws IOException {
-    Path nonJarArtifact = temporaryFolder.newFile("myscript.sh").toPath();
+    Path nonJarArtifact = File.createTempFile("myscript.sh", null, temporaryFolder).toPath();
     config =
         AppYamlProjectStageConfiguration.builder()
             .appEngineDirectory(appEngineDirectory)
@@ -237,7 +238,7 @@ public class AppYamlProjectStagingTest {
 
   @Test
   public void testCopyDockerContext_runtimeJavaNoWarning() throws AppEngineException, IOException {
-    dockerDirectory = temporaryFolder.getRoot().toPath().resolve("hopefully-made-up-dir");
+    dockerDirectory = temporaryFolder.toPath().resolve("hopefully-made-up-dir");
     AppYamlProjectStageConfiguration invalidDockerDirConfig =
         AppYamlProjectStageConfiguration.builder()
             .appEngineDirectory(appEngineDirectory)
@@ -280,7 +281,7 @@ public class AppYamlProjectStagingTest {
     List<LogRecord> logs = handler.getLogs();
     assertEquals(1, logs.size());
     assertEquals(
-        logs.get(0).getMessage(),
+        logs.getFirst().getMessage(),
         "WARNING: runtime 'java' detected, any docker configuration in "
             + config.getDockerDirectory()
             + " will be ignored. If you wish to specify "
@@ -364,7 +365,7 @@ public class AppYamlProjectStagingTest {
 
   @Test
   public void testCopyExtraFiles_nonExistantDirectory() throws IOException {
-    Path extraFilesDirectory = temporaryFolder.getRoot().toPath().resolve("non-existant-directory");
+    Path extraFilesDirectory = temporaryFolder.toPath().resolve("non-existant-directory");
     assertFalse(Files.exists(extraFilesDirectory));
 
     AppYamlProjectStageConfiguration badExtraFilesConfig =
@@ -387,7 +388,7 @@ public class AppYamlProjectStagingTest {
 
   @Test
   public void testCopyExtraFiles_directoryIsActuallyAFile() throws IOException {
-    Path extraFilesDirectory = temporaryFolder.newFile().toPath();
+    Path extraFilesDirectory = File.createTempFile("junit", null, temporaryFolder).toPath();
     assertTrue(Files.isRegularFile(extraFilesDirectory));
 
     AppYamlProjectStageConfiguration badExtraFilesConfig =
@@ -411,14 +412,14 @@ public class AppYamlProjectStagingTest {
   @Test
   public void testCopyExtraFiles_doCopy() throws IOException, AppEngineException {
     AppYamlProjectStaging.copyExtraFiles(config, copyService);
-    verify(copyService).copyDirectory(extraFilesDirectories.get(0), stagingDirectory);
+    verify(copyService).copyDirectory(extraFilesDirectories.getFirst(), stagingDirectory);
     verify(copyService).copyDirectory(extraFilesDirectories.get(1), stagingDirectory);
     verifyNoMoreInteractions(copyService);
   }
 
   @Test
   public void testCopyAppEngineContext_nonExistentAppEngineDirectory() throws IOException {
-    appEngineDirectory = temporaryFolder.getRoot().toPath().resolve("non-existent-directory");
+    appEngineDirectory = temporaryFolder.toPath().resolve("non-existent-directory");
     assertFalse(Files.exists(appEngineDirectory));
 
     AppYamlProjectStageConfiguration noAppYamlConfig =
@@ -500,7 +501,7 @@ public class AppYamlProjectStagingTest {
     Files.write(
         file, "runtime: java".getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
 
-    Assert.assertFalse(AppYamlProjectStaging.hasCustomEntrypoint(config));
+    Assertions.assertFalse(AppYamlProjectStaging.hasCustomEntrypoint(config));
   }
 
   @Test
@@ -556,12 +557,12 @@ public class AppYamlProjectStagingTest {
     // check for warning about missing jars
     List<LogRecord> logs = handler.getLogs();
     assertEquals(1, logs.size());
-    assertEquals(Level.WARNING, logs.get(0).getLevel());
+    assertEquals(Level.WARNING, logs.getFirst().getLevel());
     assertEquals(
         "Could not copy 'Class-Path' jar: "
             + Paths.get("src/test/resources/jars/libs/missing.jar")
             + " referenced in MANIFEST.MF",
-        logs.get(0).getMessage());
+        logs.getFirst().getMessage());
   }
 
   @Test
@@ -586,20 +587,20 @@ public class AppYamlProjectStagingTest {
     // check for warning about overwriting jars
     List<LogRecord> logs = handler.getLogs();
     assertEquals(1, logs.size());
-    assertEquals(Level.FINE, logs.get(0).getLevel());
+    assertEquals(Level.FINE, logs.getFirst().getLevel());
     assertEquals(
         "Overwriting 'Class-Path' jar: "
             + simpleLibTarget
             + " with "
             + simpleLib
             + " referenced in MANIFEST.MF",
-        logs.get(0).getMessage());
+        logs.getFirst().getMessage());
   }
 
   @Test
   public void testCopyService_copiesToExistingFile() throws IOException {
     AppYamlProjectStaging.CopyService copier = new AppYamlProjectStaging.CopyService();
-    Path root = temporaryFolder.getRoot().toPath();
+    Path root = temporaryFolder.toPath();
 
     Path srcDir = root.resolve("srcDir");
     Files.createDirectory(srcDir);
@@ -623,7 +624,7 @@ public class AppYamlProjectStagingTest {
   @Test
   public void testCopyService_createsParentsWhenNecessary() throws IOException {
     AppYamlProjectStaging.CopyService copier = new AppYamlProjectStaging.CopyService();
-    Path root = temporaryFolder.getRoot().toPath();
+    Path root = temporaryFolder.toPath();
 
     Path srcDir = root.resolve("srcDir");
     Files.createDirectory(srcDir);
@@ -634,11 +635,20 @@ public class AppYamlProjectStagingTest {
     Path destDir = root.resolve("destDir");
     Path destFile = destDir.resolve("destFile");
 
-    Assert.assertFalse(Files.exists(destDir));
-    Assert.assertFalse(Files.exists(destFile));
+    Assertions.assertFalse(Files.exists(destDir));
+    Assertions.assertFalse(Files.exists(destFile));
 
     copier.copyFileAndReplace(srcFile, destFile);
 
     assertArrayEquals(Files.readAllBytes(srcFile), Files.readAllBytes(destFile));
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

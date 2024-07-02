@@ -30,11 +30,11 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.serialization.CloudS
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /** Operations that use gcloud. */
 public class Gcloud {

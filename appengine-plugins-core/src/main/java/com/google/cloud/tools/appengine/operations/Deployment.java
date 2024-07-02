@@ -26,13 +26,13 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandl
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 /** Deploy staged application and project configuration. */
 public class Deployment {
@@ -73,8 +73,8 @@ public class Deployment {
     // Instead, we have to run 'gcloud app deploy' from the staging directory to achieve this.
     // So, if we find that the only deployable in the list is a directory, we just run the command
     // from that directory without passing in any deployables to gcloud.
-    if (config.getDeployables().size() == 1 && Files.isDirectory(config.getDeployables().get(0))) {
-      workingDirectory = config.getDeployables().get(0);
+    if (config.getDeployables().size() == 1 && Files.isDirectory(config.getDeployables().getFirst())) {
+      workingDirectory = config.getDeployables().getFirst();
     } else {
       for (Path deployable : config.getDeployables()) {
         if (!Files.exists(deployable)) {

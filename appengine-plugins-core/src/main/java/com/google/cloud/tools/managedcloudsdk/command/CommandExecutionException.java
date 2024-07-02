@@ -16,7 +16,7 @@
 
 package com.google.cloud.tools.managedcloudsdk.command;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /** Exception thrown when a command failed to execute completely. */
 public class CommandExecutionException extends Exception {

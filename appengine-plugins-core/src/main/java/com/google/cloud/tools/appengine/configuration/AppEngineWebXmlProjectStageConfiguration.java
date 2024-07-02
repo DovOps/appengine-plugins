@@ -17,8 +17,8 @@
 package com.google.cloud.tools.appengine.configuration;
 
 import com.google.common.base.Preconditions;
+import jakarta.annotation.Nullable;
 import java.nio.file.Path;
-import javax.annotation.Nullable;
 
 /**
  * Arguments needed to stage an App Engine appengine-web.xml based application. Null return values

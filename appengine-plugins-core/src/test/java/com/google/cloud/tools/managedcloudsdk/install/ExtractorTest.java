@@ -17,29 +17,30 @@
 package com.google.cloud.tools.managedcloudsdk.install;
 
 import com.google.cloud.tools.managedcloudsdk.ProgressListener;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExtractorTest {
 
-  @Rule public TemporaryFolder tmp = new TemporaryFolder();
+  @TempDir
+  public File tmp;
   @Mock private ProgressListener mockProgressListener;
   @Mock private ExtractorProvider mockExtractorProvider;
 
   @Test
   public void testExtract_success() throws Exception {
-    final Path extractionDestination = tmp.newFolder("target").toPath();
-    Path extractionSource = tmp.newFile("fake.archive").toPath();
+    final Path extractionDestination = newFolder(tmp, "target").toPath();
+    Path extractionSource = File.createTempFile("fake.archive", null, tmp).toPath();
 
     Mockito.doAnswer(
             invocation -> {
@@ -56,15 +57,15 @@ public class ExtractorTest {
 
     extractor.extract();
 
-    Assert.assertTrue(Files.exists(extractionDestination));
+    Assertions.assertTrue(Files.exists(extractionDestination));
     Mockito.verify(mockExtractorProvider)
         .extract(extractionSource, extractionDestination, mockProgressListener);
   }
 
   @Test
   public void testExtract_cleanupAfterException() throws Exception {
-    final Path extractionDestination = tmp.newFolder("target").toPath();
-    Path extractionSource = tmp.newFile("fake.archive").toPath();
+    final Path extractionDestination = newFolder(tmp, "target").toPath();
+    Path extractionSource = File.createTempFile("fake.archive", null, tmp).toPath();
 
     Mockito.doAnswer(
             invocation -> {
@@ -82,14 +83,23 @@ public class ExtractorTest {
 
     try {
       extractor.extract();
-      Assert.fail("IOException expected but thrown - test infrastructure failure");
+      Assertions.fail("IOException expected but thrown - test infrastructure failure");
     } catch (IOException ex) {
       // ensure we are rethrowing after cleanup
-      Assert.assertEquals("Failed during extraction", ex.getMessage());
+      Assertions.assertEquals("Failed during extraction", ex.getMessage());
     }
 
-    Assert.assertFalse(Files.exists(extractionDestination));
+    Assertions.assertFalse(Files.exists(extractionDestination));
     Mockito.verify(mockExtractorProvider)
         .extract(extractionSource, extractionDestination, mockProgressListener);
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

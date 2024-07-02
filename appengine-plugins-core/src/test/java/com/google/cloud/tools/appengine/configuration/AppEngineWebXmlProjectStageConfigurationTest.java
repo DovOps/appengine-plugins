@@ -16,13 +16,13 @@
 
 package com.google.cloud.tools.appengine.configuration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.google.common.io.Files;
 import java.nio.file.Path;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AppEngineWebXmlProjectStageConfigurationTest {
 
@@ -30,7 +30,7 @@ public class AppEngineWebXmlProjectStageConfigurationTest {
   private Path stagingDirectory = Files.createTempDir().toPath();
   private Path sourceDirectory = Files.createTempDir().toPath();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     configuration =
         AppEngineWebXmlProjectStageConfiguration.builder()

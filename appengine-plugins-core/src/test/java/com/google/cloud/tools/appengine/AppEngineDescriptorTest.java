@@ -16,11 +16,11 @@
 
 package com.google.cloud.tools.appengine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -31,8 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -143,9 +143,9 @@ public class AppEngineDescriptorTest {
   public void testParse_null() throws IOException, SAXException {
     try {
       AppEngineDescriptor.parse(null);
-      Assert.fail("allowed null input");
+      Assertions.fail("allowed null input");
     } catch (NullPointerException ex) {
-      Assert.assertNotNull(ex.getMessage());
+      Assertions.assertNotNull(ex.getMessage());
     }
   }
 
@@ -182,9 +182,11 @@ public class AppEngineDescriptorTest {
   public void testUnknownRuntime() throws AppEngineException, IOException, SAXException {
     AppEngineDescriptor descriptor =
         parse(
-            "<appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>"
-                + "<runtime>java9</runtime>"
-                + "</appengine-web-app>");
+            """
+            <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>\
+            <runtime>java9</runtime>\
+            </appengine-web-app>\
+            """);
 
     assertEquals("java9", descriptor.getRuntime());
     assertFalse(descriptor.isJava8());
@@ -194,9 +196,11 @@ public class AppEngineDescriptorTest {
   public void testJava81() throws AppEngineException, IOException, SAXException {
     AppEngineDescriptor descriptor =
         parse(
-            "<appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>"
-                + "<runtime>java8h</runtime>"
-                + "</appengine-web-app>");
+            """
+            <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>\
+            <runtime>java8h</runtime>\
+            </appengine-web-app>\
+            """);
 
     assertEquals("java8h", descriptor.getRuntime());
     assertFalse(descriptor.isJava8());
@@ -206,9 +210,11 @@ public class AppEngineDescriptorTest {
   public void testInternalRuntime() throws AppEngineException, IOException, SAXException {
     AppEngineDescriptor descriptor =
         parse(
-            "<appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>"
-                + "<runtime>java8g</runtime>"
-                + "</appengine-web-app>");
+            """
+            <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>\
+            <runtime>java8g</runtime>\
+            </appengine-web-app>\
+            """);
 
     assertEquals("java8g", descriptor.getRuntime());
     assertTrue(descriptor.isJava8());
@@ -218,9 +224,11 @@ public class AppEngineDescriptorTest {
   public void testJava6Runtime() throws AppEngineException, IOException, SAXException {
     AppEngineDescriptor descriptor =
         parse(
-            "<appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>"
-                + "<runtime>java</runtime>"
-                + "</appengine-web-app>");
+            """
+            <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>\
+            <runtime>java</runtime>\
+            </appengine-web-app>\
+            """);
 
     assertEquals("java", descriptor.getRuntime());
     assertFalse(descriptor.isJava8());

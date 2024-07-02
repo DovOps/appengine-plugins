@@ -18,8 +18,8 @@ package com.google.cloud.tools.appengine.operations;
 
 import com.google.cloud.tools.appengine.operations.cloudsdk.CloudSdkOutOfDateException;
 import com.google.cloud.tools.appengine.operations.cloudsdk.serialization.CloudSdkVersion;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CloudSdkOutOfDateExceptionTest {
 
@@ -27,9 +27,9 @@ public class CloudSdkOutOfDateExceptionTest {
   public void testNoInstalledVersion() {
     CloudSdkVersion requiredVersion = new CloudSdkVersion("132.4.5");
     CloudSdkOutOfDateException ex = new CloudSdkOutOfDateException(requiredVersion);
-    Assert.assertNull(ex.getInstalledVersion());
-    Assert.assertEquals(requiredVersion, ex.getRequiredVersion());
-    Assert.assertEquals("Cloud SDK versions before 132.4.5 are not supported", ex.getMessage());
+    Assertions.assertNull(ex.getInstalledVersion());
+    Assertions.assertEquals(requiredVersion, ex.getRequiredVersion());
+    Assertions.assertEquals("Cloud SDK versions before 132.4.5 are not supported", ex.getMessage());
   }
 
   @Test
@@ -38,9 +38,9 @@ public class CloudSdkOutOfDateExceptionTest {
     CloudSdkVersion requiredVersion = new CloudSdkVersion("133.0.0");
     CloudSdkOutOfDateException ex =
         new CloudSdkOutOfDateException(installedVersion, requiredVersion);
-    Assert.assertEquals(installedVersion, ex.getInstalledVersion());
-    Assert.assertEquals(requiredVersion, ex.getRequiredVersion());
-    Assert.assertEquals(
+    Assertions.assertEquals(installedVersion, ex.getInstalledVersion());
+    Assertions.assertEquals(requiredVersion, ex.getRequiredVersion());
+    Assertions.assertEquals(
         "Requires version 133.0.0 or later but found version 131.0.0", ex.getMessage());
   }
 }

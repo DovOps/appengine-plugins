@@ -20,9 +20,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.AnyOf.anyOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringEndsWith.endsWith;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,19 +38,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Unit tests for {@link CloudSdk}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CloudSdkTest {
 
   private Path root;
   private CloudSdk sdk;
 
-  @Before
+  @BeforeEach
   public void setup() throws CloudSdkNotFoundException {
     root = Paths.get(Files.createTempDir().toString());
     sdk = new CloudSdk.Builder().sdkPath(root).build();
@@ -145,8 +145,10 @@ public class CloudSdkTest {
   public void testGetJarPathJavaTools() {
     assertEquals(
         root.resolve(
-            "platform/google_appengine/google/appengine"
-                + "/tools/java/lib/appengine-tools-api.jar"),
+            """
+            platform/google_appengine/google/appengine\
+            /tools/java/lib/appengine-tools-api.jar\
+            """),
         sdk.getJarPath("appengine-tools-api.jar"));
   }
 
@@ -162,7 +164,7 @@ public class CloudSdkTest {
 
     CloudSdk.Builder builder = new CloudSdk.Builder().resolvers(Arrays.asList(r3, r2, r1));
     List<CloudSdkResolver> resolvers = builder.getResolvers();
-    assertEquals(r1, resolvers.get(0));
+    assertEquals(r1, resolvers.getFirst());
     assertEquals(r2, resolvers.get(1));
     assertEquals(r3, resolvers.get(2));
 
@@ -181,11 +183,11 @@ public class CloudSdkTest {
 
     CloudSdk.Builder builder = new CloudSdk.Builder().resolvers(Arrays.asList(r1, r2));
     List<CloudSdkResolver> resolvers = builder.getResolvers();
-    assertEquals(r1, resolvers.get(0));
+    assertEquals(r1, resolvers.getFirst());
     assertEquals(r2, resolvers.get(1));
 
     CloudSdk sdk = builder.build();
-    assertEquals("r1 should not resolve", r2.getCloudSdkPath(), sdk.getPath());
+    assertEquals(r2.getCloudSdkPath(), sdk.getPath(), "r1 should not resolve");
   }
 
   @Test

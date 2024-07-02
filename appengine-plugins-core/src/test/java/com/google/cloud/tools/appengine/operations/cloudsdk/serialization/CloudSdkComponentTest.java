@@ -16,22 +16,22 @@
 
 package com.google.cloud.tools.appengine.operations.cloudsdk.serialization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.cloud.tools.appengine.operations.cloudsdk.serialization.CloudSdkComponent.State;
+import jakarta.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import javax.annotation.Nullable;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Unit tests for {@link CloudSdkComponent}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CloudSdkComponentTest {
 
   @Test
@@ -47,7 +47,7 @@ public class CloudSdkComponentTest {
     List<CloudSdkComponent> result = CloudSdkComponent.fromJsonList(jsonList);
 
     assertEquals(1, result.size());
-    assertCloudSdkComponentsEqual(getCloudSdkComponentTestFixture(), result.get(0));
+    assertCloudSdkComponentsEqual(getCloudSdkComponentTestFixture(), result.getFirst());
   }
 
   @Test
@@ -133,18 +133,20 @@ public class CloudSdkComponentTest {
   }
 
   private static String getCloudSdkComponentTestFixtureAsJson() {
-    return "{"
-        + "\"current_version_string\": \"1.9.43\","
-        + "\"id\": \"app-engine-java\","
-        + "\"is_configuration\": false,"
-        + "\"is_hidden\": false,"
-        + "\"latest_version_string\": \"1.9.44\","
-        + "\"name\": \"gcloud app Java Extensions\","
-        + "\"size\": 138442691,"
-        + "\"state\": { "
-        + "  \"name\": \"Installed\" "
-        + "}"
-        + "}";
+    return """
+        {\
+        "current_version_string": "1.9.43",\
+        "id": "app-engine-java",\
+        "is_configuration": false,\
+        "is_hidden": false,\
+        "latest_version_string": "1.9.44",\
+        "name": "gcloud app Java Extensions",\
+        "size": 138442691,\
+        "state": { \
+          "name": "Installed" \
+        }\
+        }\
+        """;
   }
 
   private static CloudSdkComponent getCloudSdkComponentTestFixture() {

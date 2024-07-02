@@ -17,46 +17,47 @@
 package com.google.cloud.tools.managedcloudsdk.install;
 
 import com.google.cloud.tools.managedcloudsdk.NullProgressListener;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class ExtractorFactoryTest {
 
-  @Rule public TemporaryFolder tmp = new TemporaryFolder();
+  @TempDir
+  public File tmp;
 
   private NullProgressListener listener = new NullProgressListener();
 
   @Test
   public void testNewExtractor_isZip() throws IOException, UnknownArchiveTypeException {
-    Path archive = tmp.newFile("test-zip.zip").toPath();
-    Path dest = tmp.newFile("dest").toPath();
+    Path archive = File.createTempFile("test-zip.zip", null, tmp).toPath();
+    Path dest = File.createTempFile("dest", null, tmp).toPath();
     Extractor testExtractor = new ExtractorFactory().newExtractor(archive, dest, listener);
-    Assert.assertTrue(testExtractor.getExtractorProvider() instanceof ZipExtractorProvider);
+    Assertions.assertTrue(testExtractor.getExtractorProvider() instanceof ZipExtractorProvider);
   }
 
   @Test
   public void testNewExtractor_isTarGz() throws IOException, UnknownArchiveTypeException {
-    Path archive = tmp.newFile("test-tar-gz.tar.gz").toPath();
-    Path dest = tmp.newFile("dest").toPath();
+    Path archive = File.createTempFile("test-tar-gz.tar.gz", null, tmp).toPath();
+    Path dest = File.createTempFile("dest", null, tmp).toPath();
     Extractor testExtractor = new ExtractorFactory().newExtractor(archive, dest, listener);
-    Assert.assertTrue(testExtractor.getExtractorProvider() instanceof TarGzExtractorProvider);
+    Assertions.assertTrue(testExtractor.getExtractorProvider() instanceof TarGzExtractorProvider);
   }
 
   @Test
   public void testNewExtractor_unknownArchiveType() throws IOException {
     // make sure out check starts from end of filename
-    Path archive = tmp.newFile("test-bad.tar.gz.zip.bad").toPath();
-    Path dest = tmp.newFile("dest").toPath();
+    Path archive = File.createTempFile("test-bad.tar.gz.zip.bad", null, tmp).toPath();
+    Path dest = File.createTempFile("dest", null, tmp).toPath();
 
     try {
       new ExtractorFactory().newExtractor(archive, dest, listener);
-      Assert.fail("UnknownArchiveTypeException expected but not thrown");
+      Assertions.fail("UnknownArchiveTypeException expected but not thrown");
     } catch (UnknownArchiveTypeException ex) {
-      Assert.assertEquals("Unknown archive: " + archive, ex.getMessage());
+      Assertions.assertEquals("Unknown archive: " + archive, ex.getMessage());
     }
   }
 }

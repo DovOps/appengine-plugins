@@ -16,7 +16,7 @@
 
 package com.google.cloud.tools.maven.run;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,6 +27,7 @@ import com.google.cloud.tools.maven.cloudsdk.CloudSdkAppEngineFactory;
 import com.google.cloud.tools.maven.cloudsdk.ConfigReader;
 import com.google.cloud.tools.maven.run.Runner.ConfigBuilder;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,18 +35,17 @@ import java.nio.file.Paths;
 import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RunnerTest {
 
   private static final Path STANDARD_PROJECT_WEBAPP =
@@ -55,7 +55,8 @@ public class RunnerTest {
   private static final Path NON_STANDARD_PROJECT_WEBAPP =
       Paths.get("src/test/resources/projects/flexible-project/src/main/webapp");
 
-  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+  @TempDir
+  public File tempFolder;
 
   @Mock private CloudSdkAppEngineFactory appengineFactory;
   @Mock private DevServer devServer;
@@ -67,9 +68,9 @@ public class RunnerTest {
   @Mock private AbstractRunMojo runMojo;
   @InjectMocks private Runner testRunner;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
-    appDir = tempFolder.newFolder("artifact").toPath();
+    appDir = newFolder(tempFolder, "artifact").toPath();
     when(runMojo.getLog()).thenReturn(logMock);
     when(runMojo.getAppEngineFactory()).thenReturn(appengineFactory);
     when(appengineFactory.newConfigReader()).thenReturn(configReader);
@@ -111,7 +112,7 @@ public class RunnerTest {
   public void testProcessServices_singleService() throws MojoExecutionException {
     List<Path> userConfiguredServices = ImmutableList.of(STANDARD_PROJECT_WEBAPP);
     when(runMojo.getServices()).thenReturn(userConfiguredServices);
-    Assert.assertEquals(userConfiguredServices, testRunner.processServices());
+    Assertions.assertEquals(userConfiguredServices, testRunner.processServices());
     // no exception pass
   }
 
@@ -122,7 +123,7 @@ public class RunnerTest {
       testRunner.processServices();
       fail();
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("'services' is null", ex.getMessage());
+      Assertions.assertEquals("'services' is null", ex.getMessage());
     }
   }
 
@@ -134,7 +135,7 @@ public class RunnerTest {
       testRunner.processServices();
       fail();
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("'services' is empty", ex.getMessage());
+      Assertions.assertEquals("'services' is empty", ex.getMessage());
     }
   }
 
@@ -143,7 +144,7 @@ public class RunnerTest {
     List<Path> userConfiguredServices =
         ImmutableList.of(STANDARD_PROJECT_WEBAPP, STANDARD_PROJECT_WEBAPP2);
     when(runMojo.getServices()).thenReturn(userConfiguredServices);
-    Assert.assertEquals(userConfiguredServices, testRunner.processServices());
+    Assertions.assertEquals(userConfiguredServices, testRunner.processServices());
     // no exception pass
   }
 
@@ -156,7 +157,7 @@ public class RunnerTest {
       testRunner.processServices();
       fail();
     } catch (MojoExecutionException ex) {
-      Assert.assertEquals(Runner.NON_STANDARD_APPLICATION_ERROR, ex.getMessage());
+      Assertions.assertEquals(Runner.NON_STANDARD_APPLICATION_ERROR, ex.getMessage());
     }
   }
 
@@ -164,7 +165,7 @@ public class RunnerTest {
   public void testProcessProjectId() {
     Mockito.when(runMojo.getProjectId()).thenReturn("some-project");
     String processedProjectId = testRunner.processProjectId();
-    Assert.assertEquals("some-project", processedProjectId);
+    Assertions.assertEquals("some-project", processedProjectId);
   }
 
   @Test
@@ -172,12 +173,12 @@ public class RunnerTest {
     Mockito.when(configReader.getProjectId()).thenReturn("project-from-gcloud");
     Mockito.when(runMojo.getProjectId()).thenReturn(ConfigReader.GCLOUD_CONFIG);
     String processedProjectId = testRunner.processProjectId();
-    Assert.assertEquals("project-from-gcloud", processedProjectId);
+    Assertions.assertEquals("project-from-gcloud", processedProjectId);
   }
 
   @Test
   public void testProcessProjectId_nullIgnored() {
-    Assert.assertNull(testRunner.processProjectId());
+    Assertions.assertNull(testRunner.processProjectId());
   }
 
   @Test
@@ -185,7 +186,7 @@ public class RunnerTest {
     List<Path> services = ImmutableList.of(createAppEngineWebXmlApp());
     Mockito.when(runMojo.getServices()).thenReturn(services);
 
-    Assert.assertNotNull(new Runner.Factory().newRunner(runMojo));
+    Assertions.assertNotNull(new Runner.Factory().newRunner(runMojo));
   }
 
   @Test
@@ -195,11 +196,11 @@ public class RunnerTest {
 
     try {
       new Runner.Factory().newRunner(runMojo);
-      Assert.fail();
+      Assertions.fail();
     } catch (MojoExecutionException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "appengine:run is only available for appengine-web.xml based projects, the service defined in: "
-              + services.get(0).toString()
+              + services.getFirst().toString()
               + " cannot be run by the dev appserver.",
           ex.getMessage());
     }
@@ -212,9 +213,9 @@ public class RunnerTest {
 
     try {
       new Runner.Factory().newRunner(runMojo);
-      Assert.fail();
+      Assertions.fail();
     } catch (MojoExecutionException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "appengine:run is only available for appengine-web.xml based projects, the service defined in: "
               + services.get(1).toString()
               + " cannot be run by the dev appserver.",
@@ -223,7 +224,7 @@ public class RunnerTest {
   }
 
   private Path createAppEngineWebXmlApp() throws IOException {
-    Path appRoot = Files.createDirectory(tempFolder.getRoot().toPath().resolve("xml-app"));
+    Path appRoot = Files.createDirectory(tempFolder.toPath().resolve("xml-app"));
     Path webinf = Files.createDirectory(appRoot.resolve("WEB-INF"));
     Files.createFile(webinf.resolve("appengine-web.xml"));
 
@@ -231,9 +232,18 @@ public class RunnerTest {
   }
 
   private Path createAppYamlApp() throws IOException {
-    Path appRoot = Files.createDirectory(tempFolder.getRoot().toPath().resolve("yaml-app"));
+    Path appRoot = Files.createDirectory(tempFolder.toPath().resolve("yaml-app"));
     Files.createFile(appRoot.resolve("app.yaml"));
 
     return appRoot;
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

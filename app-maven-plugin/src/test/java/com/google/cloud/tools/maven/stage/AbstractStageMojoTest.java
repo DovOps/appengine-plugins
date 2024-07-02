@@ -21,11 +21,10 @@ import java.io.IOException;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.apache.maven.project.MavenProject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -35,7 +34,8 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnitParamsRunner.class)
 public class AbstractStageMojoTest {
 
-  @Rule public TemporaryFolder testDirectory = new TemporaryFolder();
+  @TempDir
+  public File testDirectory;
 
   @Mock private MavenProject mavenProject;
   @Mock private File sourceDirectory;
@@ -49,41 +49,52 @@ public class AbstractStageMojoTest {
         }
       };
 
-  @Before
+  @BeforeEach
   public void setUp() {
     MockitoAnnotations.initMocks(this);
   }
 
   @Test
+  // JunitParamsRunnerToParameterized conversion not supported
   @Parameters({"pom", "ear", "rar", "par", "ejb", "maven-plugin", "eclipse-plugin"})
   public void testIsAppEngineCompatiblePackaging_false(String packaging) {
     Mockito.when(mavenProject.getPackaging()).thenReturn(packaging);
 
-    Assert.assertFalse(testMojo.isAppEngineCompatiblePackaging());
+    Assertions.assertFalse(testMojo.isAppEngineCompatiblePackaging());
   }
 
   @Test
+  // JunitParamsRunnerToParameterized conversion not supported
   @Parameters({"jar", "war"})
   public void testIsAppEngineCompatiblePackaging_true(String packaging) {
     Mockito.when(mavenProject.getPackaging()).thenReturn(packaging);
 
-    Assert.assertTrue(testMojo.isAppEngineCompatiblePackaging());
+    Assertions.assertTrue(testMojo.isAppEngineCompatiblePackaging());
   }
 
   @Test
   public void testIsAppEngineWebXmlBased_true() throws IOException {
-    Mockito.when(sourceDirectory.toPath()).thenReturn(testDirectory.getRoot().toPath());
-    testDirectory.newFolder("WEB-INF");
-    testDirectory.newFile("WEB-INF/appengine-web.xml");
+    Mockito.when(sourceDirectory.toPath()).thenReturn(testDirectory.toPath());
+    newFolder(testDirectory, "WEB-INF");
+    File.createTempFile("WEB-INF/appengine-web.xml", null, testDirectory);
 
-    Assert.assertTrue(testMojo.isAppEngineWebXmlBased());
+    Assertions.assertTrue(testMojo.isAppEngineWebXmlBased());
   }
 
   @Test
   public void testIsAppEngineWebXmlBased_false() throws IOException {
-    Mockito.when(sourceDirectory.toPath()).thenReturn(testDirectory.getRoot().toPath());
-    testDirectory.newFolder("WEB-INF");
+    Mockito.when(sourceDirectory.toPath()).thenReturn(testDirectory.toPath());
+    newFolder(testDirectory, "WEB-INF");
 
-    Assert.assertFalse(testMojo.isAppEngineWebXmlBased());
+    Assertions.assertFalse(testMojo.isAppEngineWebXmlBased());
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

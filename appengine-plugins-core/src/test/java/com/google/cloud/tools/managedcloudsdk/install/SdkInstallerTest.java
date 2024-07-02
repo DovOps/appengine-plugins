@@ -20,28 +20,29 @@ import com.google.cloud.tools.managedcloudsdk.ConsoleListener;
 import com.google.cloud.tools.managedcloudsdk.ProgressListener;
 import com.google.cloud.tools.managedcloudsdk.command.CommandExecutionException;
 import com.google.cloud.tools.managedcloudsdk.command.CommandExitException;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 /** Tests for {@link SdkInstaller} */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SdkInstallerTest {
 
-  @Rule public TemporaryFolder testDir = new TemporaryFolder();
+  @TempDir
+  public File testDir;
 
   @Mock private FileResourceProviderFactory fileResourceProviderFactory;
   @Mock private ProgressListener progressListener;
@@ -68,11 +69,11 @@ public class SdkInstallerTest {
   private String fakeGcloudExecutable;
   private Path fakeGcloud;
 
-  @Before
+  @BeforeEach
   public void setUpMocksAndFakes()
       throws IOException, InterruptedException, UnknownArchiveTypeException, CommandExitException,
           CommandExecutionException {
-    Path managedSdkRoot = testDir.newFolder("managed-sdk-test-home").toPath();
+    Path managedSdkRoot = newFolder(testDir, "managed-sdk-test-home").toPath();
     fakeArchiveSource = new URL("file:///some/fake/url");
     fakeArchiveDestination = managedSdkRoot.resolve("test-downloads");
     fakeArchiveExtractionDestination = managedSdkRoot.resolve("test-version");
@@ -141,7 +142,7 @@ public class SdkInstallerTest {
     return new Answer<Void>() {
       @Override
       public Void answer(InvocationOnMock invocation) throws Throwable {
-        if (!pathToCreate.startsWith(testDir.getRoot().toPath())) {
+        if (!pathToCreate.startsWith(testDir.toPath())) {
           throw new IllegalArgumentException("Test should not create files outside the test root");
         }
         if (isDirectory) {
@@ -168,7 +169,7 @@ public class SdkInstallerTest {
             successfulInstallerFactory);
     Path result = testInstaller.install(progressListener, consoleListener);
 
-    Assert.assertEquals(fakeSdkHome, result);
+    Assertions.assertEquals(fakeSdkHome, result);
   }
 
   @Test
@@ -183,7 +184,7 @@ public class SdkInstallerTest {
             null);
     Path result = testInstaller.install(progressListener, consoleListener);
 
-    Assert.assertEquals(fakeSdkHome, result);
+    Assertions.assertEquals(fakeSdkHome, result);
   }
 
   @Test
@@ -198,9 +199,9 @@ public class SdkInstallerTest {
             successfulInstallerFactory);
     try {
       testInstaller.install(progressListener, consoleListener);
-      Assert.fail("SdKInstallerException expected but not thrown");
+      Assertions.fail("SdKInstallerException expected but not thrown");
     } catch (SdkInstallerException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "Download succeeded but valid archive not found at " + fakeArchiveDestination.toString(),
           ex.getMessage());
     }
@@ -218,9 +219,9 @@ public class SdkInstallerTest {
             successfulInstallerFactory);
     try {
       testInstaller.install(progressListener, consoleListener);
-      Assert.fail("SdKInstallerException expected but not thrown");
+      Assertions.fail("SdKInstallerException expected but not thrown");
     } catch (SdkInstallerException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "Extraction succeeded but valid sdk home not found at " + fakeSdkHome.toString(),
           ex.getMessage());
     }
@@ -238,11 +239,20 @@ public class SdkInstallerTest {
             failureInstallerFactory);
     try {
       testInstaller.install(progressListener, consoleListener);
-      Assert.fail("SdKInstallerException expected but not thrown");
+      Assertions.fail("SdKInstallerException expected but not thrown");
     } catch (SdkInstallerException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "Installation succeeded but gcloud executable not found at " + fakeGcloud.toString(),
           ex.getMessage());
     }
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

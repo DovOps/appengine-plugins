@@ -16,9 +16,9 @@
 
 package com.google.cloud.tools.appengine.operations;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.times;
@@ -31,27 +31,28 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandl
 import com.google.cloud.tools.test.utils.SpyVerifier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Unit tests for {@link Deployment}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DeploymentTest {
 
-  @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
+  @TempDir
+  public File tmpDir;
 
   private Path appYaml1;
   private Path appYaml2;
@@ -63,11 +64,11 @@ public class DeploymentTest {
   @Mock private DeployProjectConfigurationConfiguration mockProjectConfigurationConfiguration;
   @Mock private GcloudRunner gcloudRunner;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
-    appYaml1 = tmpDir.newFile("app1.yaml").toPath();
-    appYaml2 = tmpDir.newFile("app2.yaml").toPath();
-    stagingDirectory = tmpDir.newFolder("appengine-staging").toPath();
+    appYaml1 = File.createTempFile("app1.yaml", null, tmpDir).toPath();
+    appYaml2 = File.createTempFile("app2.yaml", null, tmpDir).toPath();
+    stagingDirectory = newFolder(tmpDir, "appengine-staging").toPath();
     deployment = new Deployment(gcloudRunner);
   }
 
@@ -75,7 +76,7 @@ public class DeploymentTest {
   public void testNullSdk() {
     try {
       new Deployment(null);
-      Assert.fail("allowed null runner");
+      Assertions.fail("allowed null runner");
     } catch (NullPointerException expected) {
       // pass
     }
@@ -237,9 +238,9 @@ public class DeploymentTest {
    */
   @Test
   public void testDeployConfig() throws Exception {
-    Path testConfigYaml = tmpDir.newFile("testconfig.yaml").toPath();
+    Path testConfigYaml = File.createTempFile("testconfig.yaml", null, tmpDir).toPath();
     DeployProjectConfigurationConfiguration configuration =
-        DeployProjectConfigurationConfiguration.builder(tmpDir.getRoot().toPath())
+        DeployProjectConfigurationConfiguration.builder(tmpDir.toPath())
             .server("appengine.google.com")
             .projectId("project")
             .build();
@@ -260,10 +261,10 @@ public class DeploymentTest {
 
   @Test
   public void testDeployConfig_doesNotExist() throws AppEngineException {
-    Path testConfigYaml = tmpDir.getRoot().toPath().resolve("testconfig.yaml");
+    Path testConfigYaml = tmpDir.toPath().resolve("testconfig.yaml");
     assertFalse(Files.exists(testConfigYaml));
     DeployProjectConfigurationConfiguration configuration =
-        DeployProjectConfigurationConfiguration.builder(tmpDir.getRoot().toPath()).build();
+        DeployProjectConfigurationConfiguration.builder(tmpDir.toPath()).build();
     try {
       deployment.deployConfig("testconfig.yaml", configuration);
       fail();
@@ -274,15 +275,15 @@ public class DeploymentTest {
 
   @Test
   public void testGetMode_valid() throws AppEngineException {
-    Assert.assertNull(deployment.processMode(null));
+    Assertions.assertNull(deployment.processMode(null));
 
-    Assert.assertEquals("alpha", deployment.processMode("alpha"));
-    Assert.assertEquals("alpha", deployment.processMode("ALPHA"));
-    Assert.assertEquals("alpha", deployment.processMode("  AlPhA  "));
+    Assertions.assertEquals("alpha", deployment.processMode("alpha"));
+    Assertions.assertEquals("alpha", deployment.processMode("ALPHA"));
+    Assertions.assertEquals("alpha", deployment.processMode("  AlPhA  "));
 
-    Assert.assertEquals("beta", deployment.processMode("beta"));
-    Assert.assertEquals("beta", deployment.processMode("BETA"));
-    Assert.assertEquals("beta", deployment.processMode("  BeTA  "));
+    Assertions.assertEquals("beta", deployment.processMode("beta"));
+    Assertions.assertEquals("beta", deployment.processMode("BETA"));
+    Assertions.assertEquals("beta", deployment.processMode("  BeTA  "));
   }
 
   @Test
@@ -292,8 +293,17 @@ public class DeploymentTest {
         deployment.processMode(badString);
         fail();
       } catch (AppEngineException e) {
-        Assert.assertEquals("Invalid gcloud mode: " + badString, e.getMessage());
+        Assertions.assertEquals("Invalid gcloud mode: " + badString, e.getMessage());
       }
     }
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

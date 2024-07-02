@@ -17,10 +17,10 @@
 package com.google.cloud.tools.project;
 
 import com.google.cloud.tools.appengine.AppEngineException;
+import jakarta.annotation.Nullable;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
-import javax.annotation.Nullable;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -128,7 +128,7 @@ public class AppYaml {
   @Nullable
   private String getString(String key) {
     Object value = yamlMap.get(key);
-    return value instanceof String ? (String) value : null;
+    return value instanceof String s ? s : null;
   }
 
   @Nullable

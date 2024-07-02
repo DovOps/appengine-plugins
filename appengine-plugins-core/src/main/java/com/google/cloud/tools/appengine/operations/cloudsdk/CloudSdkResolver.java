@@ -16,8 +16,8 @@
 
 package com.google.cloud.tools.appengine.operations.cloudsdk;
 
+import jakarta.annotation.Nullable;
 import java.nio.file.Path;
-import javax.annotation.Nullable;
 
 /** Resolve paths to find the CloudSdk. */
 public interface CloudSdkResolver {

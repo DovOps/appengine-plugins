@@ -16,7 +16,7 @@
 
 package com.google.cloud.tools.maven.deploy;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.cloud.tools.appengine.AppEngineException;
 import com.google.cloud.tools.appengine.configuration.DeployConfiguration;
@@ -26,6 +26,7 @@ import com.google.cloud.tools.maven.cloudsdk.CloudSdkAppEngineFactory;
 import com.google.cloud.tools.maven.deploy.AppDeployer.ConfigBuilder;
 import com.google.cloud.tools.maven.stage.Stager;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,20 +35,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AppDeployerTest {
 
-  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+  @TempDir
+  public File tempFolder;
 
   @Mock private ConfigBuilder configBuilder;
   @Mock private Stager stager;
@@ -63,10 +64,10 @@ public class AppDeployerTest {
 
   private AppDeployer testDeployer;
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
-    stagingDirectory = tempFolder.newFolder("staging").toPath();
-    appengineDirectory = tempFolder.newFolder("appengine").toPath();
+    stagingDirectory = newFolder(tempFolder, "staging").toPath();
+    appengineDirectory = newFolder(tempFolder, "appengine").toPath();
 
     testDeployer = new AppDeployer(deployMojo, stager, configBuilder, appengineDirectory);
 
@@ -146,7 +147,7 @@ public class AppDeployerTest {
       testDeployer.deployAll();
       fail();
     } catch (MojoExecutionException ex) {
-      Assert.assertEquals("Failed to deploy all: could not find app.yaml.", ex.getMessage());
+      Assertions.assertEquals("Failed to deploy all: could not find app.yaml.", ex.getMessage());
     }
   }
 
@@ -211,14 +212,23 @@ public class AppDeployerTest {
     DeployConfiguration deployConfig =
         new ConfigBuilder(deployMojo, configProcessor).buildDeployConfiguration(deployables);
 
-    Assert.assertEquals(deployables, deployConfig.getDeployables());
-    Assert.assertEquals("beta", deployConfig.getGcloudMode());
-    Assert.assertEquals("testBucket", deployConfig.getBucket());
-    Assert.assertEquals("testImageUrl", deployConfig.getImageUrl());
-    Assert.assertEquals("processedTestProjectId", deployConfig.getProjectId());
-    Assert.assertEquals(Boolean.FALSE, deployConfig.getPromote());
-    Assert.assertEquals(Boolean.FALSE, deployConfig.getStopPreviousVersion());
-    Assert.assertEquals("testServer", deployConfig.getServer());
-    Assert.assertEquals("processedTestVersion", deployConfig.getVersion());
+    Assertions.assertEquals(deployables, deployConfig.getDeployables());
+    Assertions.assertEquals("beta", deployConfig.getGcloudMode());
+    Assertions.assertEquals("testBucket", deployConfig.getBucket());
+    Assertions.assertEquals("testImageUrl", deployConfig.getImageUrl());
+    Assertions.assertEquals("processedTestProjectId", deployConfig.getProjectId());
+    Assertions.assertEquals(Boolean.FALSE, deployConfig.getPromote());
+    Assertions.assertEquals(Boolean.FALSE, deployConfig.getStopPreviousVersion());
+    Assertions.assertEquals("testServer", deployConfig.getServer());
+    Assertions.assertEquals("processedTestVersion", deployConfig.getVersion());
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

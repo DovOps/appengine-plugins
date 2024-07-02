@@ -18,7 +18,7 @@ package com.google.cloud.tools.appengine.operations.cloudsdk.serialization;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /** Representation of gcloud state. Used for JSON serialization/deserialization. */
 public class CloudSdkConfig {

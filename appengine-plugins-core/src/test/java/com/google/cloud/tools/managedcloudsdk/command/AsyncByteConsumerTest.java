@@ -23,15 +23,15 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AsyncByteConsumerTest {
 
   private static final String TEST_STRING = "test line1\ntest line2\n";
@@ -70,10 +70,10 @@ public class AsyncByteConsumerTest {
     try {
       new AsyncByteConsumer(mockByteHandler, listeningExecutorService, future)
           .handleStream(mockInputStream);
-      Assert.fail("IllegalStateException expected but not thrown");
+      Assertions.fail("IllegalStateException expected but not thrown");
     } catch (IllegalStateException ex) {
       // pass
-      Assert.assertEquals("Cannot reuse " + AsyncByteConsumer.class.getName(), ex.getMessage());
+      Assertions.assertEquals("Cannot reuse " + AsyncByteConsumer.class.getName(), ex.getMessage());
     }
   }
 
@@ -95,7 +95,7 @@ public class AsyncByteConsumerTest {
       int length = nBytes.getAllValues().get(i);
       result.append(new String(rawBytes, 0, length, StandardCharsets.UTF_8));
     }
-    Assert.assertEquals(TEST_STRING, result.toString());
+    Assertions.assertEquals(TEST_STRING, result.toString());
 
     Mockito.verify(mockByteHandler).getResult();
     Mockito.verifyNoMoreInteractions(mockByteHandler);

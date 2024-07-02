@@ -19,28 +19,26 @@ package com.google.cloud.tools.managedcloudsdk.install;
 import com.google.cloud.tools.managedcloudsdk.BadCloudSdkVersionException;
 import com.google.cloud.tools.managedcloudsdk.OsInfo;
 import com.google.cloud.tools.managedcloudsdk.Version;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
 public class FileResourceProviderFactoryTest {
 
-  @Rule public TemporaryFolder testDir = new TemporaryFolder();
+  @TempDir
+  public File testDir;
 
   private Path fakeSdkHome;
   private Path fakeDownloadsDir;
 
-  @Parameterized.Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(
         new Object[][] {
@@ -82,39 +80,33 @@ public class FileResourceProviderFactoryTest {
           },
         });
   }
-
-  @Parameterized.Parameter(0)
   public OsInfo osInfo;
-
-  @Parameterized.Parameter(1)
   public String latestFilename;
-
-  @Parameterized.Parameter(2)
   public String versionedFilenameTail;
-
-  @Parameterized.Parameter(3)
   public String gcloudExecutable;
 
-  @Before
+  @BeforeEach
   public void setUp() {
-    fakeSdkHome = testDir.getRoot().toPath();
+    fakeSdkHome = testDir.toPath();
     fakeDownloadsDir = fakeSdkHome.resolve("downloads");
   }
 
-  @Test
-  public void testNewFileResourceProvider_latest() throws MalformedURLException {
+  @MethodSource("data")
+  @ParameterizedTest
+  public void testNewFileResourceProvider_latest(OsInfo osInfo, String latestFilename, String versionedFilenameTail, String gcloudExecutable) throws MalformedURLException {
+    initFileResourceProviderFactoryTest(osInfo, latestFilename, versionedFilenameTail, gcloudExecutable);
     FileResourceProviderFactory factory =
         new FileResourceProviderFactory(Version.LATEST, osInfo, fakeSdkHome);
     FileResourceProvider provider = factory.newFileResourceProvider();
 
-    Assert.assertEquals(
+    Assertions.assertEquals(
         new URL(FileResourceProviderFactory.LATEST_BASE_URL + latestFilename),
         provider.getArchiveSource());
-    Assert.assertEquals(fakeDownloadsDir.resolve(latestFilename), provider.getArchiveDestination());
-    Assert.assertEquals(fakeSdkHome.resolve("LATEST"), provider.getArchiveExtractionDestination());
-    Assert.assertEquals(
+    Assertions.assertEquals(fakeDownloadsDir.resolve(latestFilename), provider.getArchiveDestination());
+    Assertions.assertEquals(fakeSdkHome.resolve("LATEST"), provider.getArchiveExtractionDestination());
+    Assertions.assertEquals(
         fakeSdkHome.resolve("LATEST").resolve("google-cloud-sdk"), provider.getExtractedSdkHome());
-    Assert.assertEquals(
+    Assertions.assertEquals(
         fakeSdkHome
             .resolve("LATEST")
             .resolve("google-cloud-sdk")
@@ -123,33 +115,42 @@ public class FileResourceProviderFactoryTest {
         provider.getExtractedGcloud());
   }
 
-  @Test
-  public void testNewFileResourceProvider_versioned()
+  @MethodSource("data")
+  @ParameterizedTest
+  public void testNewFileResourceProvider_versioned(OsInfo osInfo, String latestFilename, String versionedFilenameTail, String gcloudExecutable)
       throws MalformedURLException, BadCloudSdkVersionException {
+    initFileResourceProviderFactoryTest(osInfo, latestFilename, versionedFilenameTail, gcloudExecutable);
     FileResourceProviderFactory factory =
         new FileResourceProviderFactory(new Version("123.123.123"), osInfo, fakeSdkHome);
     FileResourceProvider provider = factory.newFileResourceProvider();
 
-    Assert.assertEquals(
+    Assertions.assertEquals(
         new URL(
             FileResourceProviderFactory.VERSIONED_BASE_URL
                 + "google-cloud-sdk-123.123.123-"
                 + versionedFilenameTail),
         provider.getArchiveSource());
-    Assert.assertEquals(
+    Assertions.assertEquals(
         fakeDownloadsDir.resolve("google-cloud-sdk-123.123.123-" + versionedFilenameTail),
         provider.getArchiveDestination());
-    Assert.assertEquals(
+    Assertions.assertEquals(
         fakeSdkHome.resolve("123.123.123"), provider.getArchiveExtractionDestination());
-    Assert.assertEquals(
+    Assertions.assertEquals(
         fakeSdkHome.resolve("123.123.123").resolve("google-cloud-sdk"),
         provider.getExtractedSdkHome());
-    Assert.assertEquals(
+    Assertions.assertEquals(
         fakeSdkHome
             .resolve("123.123.123")
             .resolve("google-cloud-sdk")
             .resolve("bin")
             .resolve(gcloudExecutable),
         provider.getExtractedGcloud());
+  }
+
+  public void initFileResourceProviderFactoryTest(OsInfo osInfo, String latestFilename, String versionedFilenameTail, String gcloudExecutable) {
+    this.osInfo = osInfo;
+    this.latestFilename = latestFilename;
+    this.versionedFilenameTail = versionedFilenameTail;
+    this.gcloudExecutable = gcloudExecutable;
   }
 }

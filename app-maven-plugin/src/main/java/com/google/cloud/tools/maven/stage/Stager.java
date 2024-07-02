@@ -33,8 +33,11 @@ public interface Stager {
     }
     if (stageMojo.getArtifact() == null || !Files.exists(stageMojo.getArtifact())) {
       throw new MojoExecutionException(
-          "\nCould not determine appengine environment, did you package your application?"
-              + "\nRun 'mvn package appengine:stage'");
+          """
+          
+          Could not determine appengine environment, did you package your application?
+          Run 'mvn package appengine:stage'\
+          """);
     }
     return stageMojo.isAppEngineWebXmlBased()
         ? AppEngineWebXmlStager.newAppEngineWebXmlStager(stageMojo)

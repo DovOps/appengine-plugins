@@ -16,9 +16,9 @@
 
 package com.google.cloud.tools.appengine.operations.cloudsdk.internal.args;
 
+import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /** Command Line argument helper for AppCfg based commands. */
 public class AppCfgArgs {

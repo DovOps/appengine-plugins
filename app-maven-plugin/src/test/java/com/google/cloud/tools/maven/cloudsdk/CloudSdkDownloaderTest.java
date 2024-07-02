@@ -40,15 +40,15 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.function.Function;
 import org.apache.maven.plugin.logging.Log;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CloudSdkDownloaderTest {
 
   @Mock private Log log;
@@ -62,7 +62,7 @@ public class CloudSdkDownloaderTest {
 
   @InjectMocks private CloudSdkDownloader downloader;
 
-  @Before
+  @BeforeEach
   public void setup() {
     when(managedCloudSdkFactory.apply(version)).thenReturn(managedCloudSdk);
     when(managedCloudSdk.newInstaller()).thenReturn(installer);
@@ -153,14 +153,14 @@ public class CloudSdkDownloaderTest {
   public void testNewManagedSdk_null() throws UnsupportedOsException {
     // There's no way of testing for direct ManagedCloudSdk equality, so compare home paths
     ManagedCloudSdk sdk = CloudSdkDownloader.newManagedSdkFactory().apply(null);
-    Assert.assertEquals(ManagedCloudSdk.newManagedSdk().getSdkHome(), sdk.getSdkHome());
+    Assertions.assertEquals(ManagedCloudSdk.newManagedSdk().getSdkHome(), sdk.getSdkHome());
   }
 
   @Test
   public void testNewManagedSdk_specific()
       throws UnsupportedOsException, BadCloudSdkVersionException {
     ManagedCloudSdk sdk = CloudSdkDownloader.newManagedSdkFactory().apply("191.0.0");
-    Assert.assertEquals(
+    Assertions.assertEquals(
         ManagedCloudSdk.newManagedSdk(new Version("191.0.0")).getSdkHome(), sdk.getSdkHome());
   }
 }

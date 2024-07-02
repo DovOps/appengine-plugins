@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.invocation.Invocation;
@@ -48,7 +48,7 @@ public class SpyVerifier {
   public SpyVerifier verifyAllValuesNotNull() throws IllegalAccessException {
     for (Field field : classToInspectAs.getDeclaredFields()) {
       field.setAccessible(true);
-      Assert.assertNotNull(field.getName() + " was null.", field.get(objectToInspect));
+      Assertions.assertNotNull(field.get(objectToInspect), field.getName() + " was null.");
     }
     return this;
   }

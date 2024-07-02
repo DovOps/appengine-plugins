@@ -17,12 +17,12 @@
 package com.google.cloud.tools.managedcloudsdk.process;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /** Executes a shell command. */
 public class ProcessExecutor {

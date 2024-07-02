@@ -16,36 +16,40 @@
 
 package com.google.cloud.tools.appengine.operations.cloudsdk.serialization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.cloud.tools.appengine.operations.cloudsdk.JsonParseException;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class GcloudStructuredLogTest {
 
   private static final String sampleJson =
-      "{"
-          + "  'version': 'semantic version of the message format, e.g. 0.0.1',"
-          + "  'verbosity': 'logging level: e.g. debug, info, warn, error, critical, exception',"
-          + "  'timestamp': 'time event logged in UTC log file format: %Y-%m-%dT%H:%M:%S.%3f%Ez',"
-          + "  'message': 'log/error message string',"
-          + "  'error': {"
-          + "    'type': 'exception or error raised (if logged message has actual exception data)',"
-          + "    'stacktrace': 'stacktrace or error if available',"
-          + "    'details': 'any additional error details'"
-          + "  }"
-          + "}";
+      """
+      {\
+        'version': 'semantic version of the message format, e.g. 0.0.1',\
+        'verbosity': 'logging level: e.g. debug, info, warn, error, critical, exception',\
+        'timestamp': 'time event logged in UTC log file format: %Y-%m-%dT%H:%M:%S.%3f%Ez',\
+        'message': 'log/error message string',\
+        'error': {\
+          'type': 'exception or error raised (if logged message has actual exception data)',\
+          'stacktrace': 'stacktrace or error if available',\
+          'details': 'any additional error details'\
+        }\
+      }\
+      """;
 
   private static final String noErrorSampleJson =
-      "{ 'version': '0.0.1', 'verbosity': 'ERROR',"
-          + " 'timestamp': '2017-08-04T18:49:50.917Z',"
-          + " 'message': '(gcloud.app.deploy) Could not copy [/tmp/tmpAqUB6m/src.tgz]' }";
+      """
+      { 'version': '0.0.1', 'verbosity': 'ERROR',\
+       'timestamp': '2017-08-04T18:49:50.917Z',\
+       'message': '(gcloud.app.deploy) Could not copy [/tmp/tmpAqUB6m/src.tgz]' }\
+      """;
 
   @Test
   public void testParse_fullJson() throws JsonParseException {
@@ -100,7 +104,7 @@ public class GcloudStructuredLogTest {
       GcloudStructuredLog.parse("non-JSON");
       fail();
     } catch (JsonParseException expected) {
-      MatcherAssert.assertThat(
+      assertThat(
           expected.getMessage(), CoreMatchers.containsString("JsonSyntaxException"));
     }
   }
@@ -128,6 +132,6 @@ public class GcloudStructuredLogTest {
     GcloudStructuredLog log =
         GcloudStructuredLog.parse(
             "{'version': '0.0.1', 'verbosity': 'INFO', 'timestamp': 'a-timestamp'}");
-    Assert.assertEquals("", log.getMessage());
+    Assertions.assertEquals("", log.getMessage());
   }
 }

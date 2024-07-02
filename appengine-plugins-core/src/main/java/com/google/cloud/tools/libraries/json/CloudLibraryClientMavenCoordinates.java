@@ -16,7 +16,7 @@
 
 package com.google.cloud.tools.libraries.json;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /** Holds details about a single Cloud library client's Maven artifact. */
 public final class CloudLibraryClientMavenCoordinates {

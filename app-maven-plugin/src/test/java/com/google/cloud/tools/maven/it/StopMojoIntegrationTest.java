@@ -16,8 +16,8 @@
 
 package com.google.cloud.tools.maven.it;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.cloud.tools.maven.it.util.UrlUtils;
 import com.google.cloud.tools.maven.it.verifier.StandardVerifier;
@@ -26,14 +26,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StopMojoIntegrationTest extends AbstractMojoIntegrationTest {
 
   private int serverPort;
 
-  @Before
+  @BeforeEach
   public void initPorts() throws IOException {
     serverPort = SocketUtil.findPort();
   }

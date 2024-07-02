@@ -18,6 +18,7 @@ package com.google.cloud.tools.managedcloudsdk.install;
 
 import com.google.cloud.tools.managedcloudsdk.ProgressListener;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -31,24 +32,24 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DownloaderTest {
 
-  @Rule public TemporaryFolder tmp = new TemporaryFolder();
+  @TempDir
+  public File tmp;
   @Mock private ProgressListener mockProgressListener;
 
   private Path createTestRemoteResource(long sizeInBytes) throws IOException {
 
-    Path testFile = tmp.newFile().toPath();
+    Path testFile = File.createTempFile("junit", null, tmp).toPath();
     try (BufferedWriter writer = Files.newBufferedWriter(testFile, StandardCharsets.UTF_8)) {
       for (long i = 0; i < sizeInBytes; i++) {
         writer.write('a');
@@ -59,7 +60,7 @@ public class DownloaderTest {
 
   @Test
   public void testDownload_createsNewDirectory() throws IOException, InterruptedException {
-    Path destination = tmp.getRoot().toPath().resolve("dir-to-create").resolve("destination-file");
+    Path destination = tmp.toPath().resolve("dir-to-create").resolve("destination-file");
     Path testSourceFile = createTestRemoteResource(1);
     URL fakeRemoteResource = testSourceFile.toUri().toURL();
 
@@ -67,14 +68,14 @@ public class DownloaderTest {
         new Downloader(fakeRemoteResource, destination, "user agent", mockProgressListener);
 
     downloader.download();
-    Assert.assertTrue(Files.exists(destination));
+    Assertions.assertTrue(Files.exists(destination));
   }
 
   @Test
   public void testDownload_worksWithNullProgressListener()
       throws IOException, InterruptedException {
 
-    Path destination = tmp.getRoot().toPath().resolve("destination-file");
+    Path destination = tmp.toPath().resolve("destination-file");
     Path testSourceFile = createTestRemoteResource(1);
     URL fakeRemoteResource = testSourceFile.toUri().toURL();
 
@@ -82,12 +83,12 @@ public class DownloaderTest {
         new Downloader(fakeRemoteResource, destination, "Dummy User Agent", mockProgressListener);
 
     downloader.download();
-    Assert.assertTrue(Files.exists(destination));
+    Assertions.assertTrue(Files.exists(destination));
   }
 
   @Test
   public void testDownload() throws IOException, InterruptedException {
-    Path destination = tmp.getRoot().toPath().resolve("destination-file");
+    Path destination = tmp.toPath().resolve("destination-file");
     long testFileSize = 80 * 1024;
     Path testSourceFile = createTestRemoteResource(testFileSize);
     URL fakeRemoteResource = testSourceFile.toUri().toURL();
@@ -96,26 +97,26 @@ public class DownloaderTest {
         new Downloader(fakeRemoteResource, destination, "Dummy User Agent", mockProgressListener);
 
     downloader.download();
-    Assert.assertTrue(Files.exists(destination));
-    Assert.assertArrayEquals(Files.readAllBytes(destination), Files.readAllBytes(testSourceFile));
+    Assertions.assertTrue(Files.exists(destination));
+    Assertions.assertArrayEquals(Files.readAllBytes(destination), Files.readAllBytes(testSourceFile));
 
     ProgressVerifier.verifyProgress(mockProgressListener, "Downloading 0.08 MB");
   }
 
   @Test
   public void testGetDownloadStatus() {
-    Assert.assertEquals("Downloading 0.08 MB", Downloader.getDownloadStatus(81921, Locale.ENGLISH));
-    Assert.assertEquals("Downloading 0,08 MB", Downloader.getDownloadStatus(81921, Locale.GERMAN));
+    Assertions.assertEquals("Downloading 0.08 MB", Downloader.getDownloadStatus(81921, Locale.ENGLISH));
+    Assertions.assertEquals("Downloading 0,08 MB", Downloader.getDownloadStatus(81921, Locale.GERMAN));
 
-    Assert.assertEquals(
+    Assertions.assertEquals(
         "Downloading 1,000.00 MB", Downloader.getDownloadStatus(1048576000, Locale.ENGLISH));
-    Assert.assertEquals(
+    Assertions.assertEquals(
         "Downloading 1.000,00 MB", Downloader.getDownloadStatus(1048576000, Locale.GERMAN));
   }
 
   @Test
   public void testDownload_userAgentSet() throws IOException {
-    Path destination = tmp.getRoot().toPath().resolve("destination-file");
+    Path destination = tmp.toPath().resolve("destination-file");
 
     final URLConnection mockConnection = Mockito.mock(URLConnection.class);
     URLStreamHandler testHandler =
@@ -141,7 +142,7 @@ public class DownloaderTest {
 
   @Test
   public void testDownload_failIfExists() throws IOException, InterruptedException {
-    Path destination = tmp.getRoot().toPath().resolve("destination-file");
+    Path destination = tmp.toPath().resolve("destination-file");
     Files.createFile(destination);
 
     URL testUrl = new URL("http://www.example.com");
@@ -150,16 +151,16 @@ public class DownloaderTest {
 
     try {
       downloader.download();
-      Assert.fail("FileAlreadyExistsException expected but not thrown.");
+      Assertions.fail("FileAlreadyExistsException expected but not thrown.");
     } catch (FileAlreadyExistsException ex) {
-      Assert.assertEquals(ex.getMessage(), destination.toString());
+      Assertions.assertEquals(ex.getMessage(), destination.toString());
     }
   }
 
   @Test
   public void testDownload_interruptTriggersCleanup()
       throws IOException, InterruptedException, ExecutionException {
-    Path destination = tmp.getRoot().toPath().resolve("destination-file");
+    Path destination = tmp.toPath().resolve("destination-file");
     long testFileSize = 80 * 1024;
     Path testSourceFile = createTestRemoteResource(testFileSize);
     URL fakeRemoteResource = testSourceFile.toUri().toURL();
@@ -176,16 +177,16 @@ public class DownloaderTest {
               Thread.currentThread().interrupt();
               try {
                 downloader.download();
-                Assert.fail("InterruptedException expected but not thrown.");
+                Assertions.fail("InterruptedException expected but not thrown.");
               } catch (InterruptedException ex) {
-                Assert.assertEquals("Download was interrupted", ex.getMessage());
+                Assertions.assertEquals("Download was interrupted", ex.getMessage());
               }
               return null;
             });
     executorService.shutdown();
     testThreadToInterrupt.get();
 
-    Assert.assertFalse(Files.exists(destination));
+    Assertions.assertFalse(Files.exists(destination));
     Mockito.verify(mockProgressListener, Mockito.never()).update(100);
   }
 }

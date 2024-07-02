@@ -20,7 +20,7 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.JsonParseException;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /** Holds de-serialized JSON of a single instance of structured log output from {@code gcloud}. */
 public class GcloudStructuredLog {

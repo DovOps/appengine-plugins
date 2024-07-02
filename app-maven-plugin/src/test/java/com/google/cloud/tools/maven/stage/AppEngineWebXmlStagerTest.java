@@ -24,6 +24,7 @@ import com.google.cloud.tools.appengine.operations.AppEngineWebXmlProjectStaging
 import com.google.cloud.tools.maven.cloudsdk.CloudSdkAppEngineFactory;
 import com.google.cloud.tools.maven.stage.AppEngineWebXmlStager.ConfigBuilder;
 import com.google.common.base.Strings;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -32,11 +33,10 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -46,7 +46,8 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnitParamsRunner.class)
 public class AppEngineWebXmlStagerTest {
 
-  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+  @TempDir
+  public File tempFolder;
 
   @Mock private CloudSdkAppEngineFactory appengineFactory;
   @Mock private AppEngineWebXmlProjectStaging staging;
@@ -58,14 +59,14 @@ public class AppEngineWebXmlStagerTest {
 
   @InjectMocks private AppEngineWebXmlStager testStager;
 
-  @Before
+  @BeforeEach
   public void configureStageMojo() throws MojoExecutionException {
     MockitoAnnotations.initMocks(this);
     when(stageMojo.getLog()).thenReturn(logMock);
     when(stageMojo.getAppEngineFactory()).thenReturn(appengineFactory);
     when(appengineFactory.appengineWebXmlStaging()).thenReturn(staging);
     when(configBuilder.buildConfiguration()).thenReturn(stagingConfiguration);
-    when(stagingConfiguration.getStagingDirectory()).thenReturn(tempFolder.getRoot().toPath());
+    when(stagingConfiguration.getStagingDirectory()).thenReturn(tempFolder.toPath());
   }
 
   @Test
@@ -81,6 +82,7 @@ public class AppEngineWebXmlStagerTest {
   }
 
   @Test
+  // JunitParamsRunnerToParameterized conversion not supported
   @Parameters({
     "dockerfile|dockerfile1|dockerfile2|dockerfile",
     "|dockerfile1|dockerfile2|dockerfile1",
@@ -89,7 +91,7 @@ public class AppEngineWebXmlStagerTest {
   public void testProcessDockerfile_passthrough(
       String dockerfileName, String dockerfile1Name, String dockerfile2Name, String expectedName)
       throws IOException {
-    Path testRoot = tempFolder.getRoot().toPath();
+    Path testRoot = tempFolder.toPath();
     Path dockerfile =
         Strings.isNullOrEmpty(dockerfileName)
             ? null
@@ -107,13 +109,13 @@ public class AppEngineWebXmlStagerTest {
     Mockito.when(stageMojo.getDockerfileSecondaryDefaultLocation()).thenReturn(dockerfile2);
 
     Path processedDockerfile = new ConfigBuilder(stageMojo).processDockerfile();
-    Assert.assertEquals(testRoot.resolve(expectedName), processedDockerfile);
+    Assertions.assertEquals(testRoot.resolve(expectedName), processedDockerfile);
   }
 
   /** Configure an appengine-web.xml for these test. */
   private Path setupSourceDirectory(String extraContent) throws IOException {
     Path appengineWebXml =
-        Files.createFile(tempFolder.getRoot().toPath().resolve("appengine-web.xml"));
+        Files.createFile(tempFolder.toPath().resolve("appengine-web.xml"));
     Files.write(
         appengineWebXml,
         ("<appengine-web-app>" + extraContent + "</appengine-web-app>")
@@ -123,6 +125,7 @@ public class AppEngineWebXmlStagerTest {
   }
 
   @Test
+  // JunitParamsRunnerToParameterized conversion not supported
   @Parameters({"1.7", "1.8"})
   public void testProcessRuntime_nullPassthrough(String compileTargetVersion)
       throws IOException, MojoExecutionException {
@@ -130,7 +133,7 @@ public class AppEngineWebXmlStagerTest {
     when(stageMojo.getCompileTargetVersion()).thenReturn(compileTargetVersion);
 
     String processedRuntime = new ConfigBuilder(stageMojo).processRuntime();
-    Assert.assertNull(processedRuntime);
+    Assertions.assertNull(processedRuntime);
   }
 
   @Test
@@ -139,7 +142,7 @@ public class AppEngineWebXmlStagerTest {
     when(stageMojo.getCompileTargetVersion()).thenReturn("1.7");
 
     String processedRuntime = new ConfigBuilder(stageMojo).processRuntime();
-    Assert.assertEquals(null, processedRuntime);
+    Assertions.assertEquals(null, processedRuntime);
   }
 
   @Test
@@ -149,6 +152,6 @@ public class AppEngineWebXmlStagerTest {
     when(stageMojo.getCompileTargetVersion()).thenReturn("1.8");
 
     String processedRuntime = new ConfigBuilder(stageMojo).processRuntime();
-    Assert.assertEquals("java", processedRuntime);
+    Assertions.assertEquals("java", processedRuntime);
   }
 }

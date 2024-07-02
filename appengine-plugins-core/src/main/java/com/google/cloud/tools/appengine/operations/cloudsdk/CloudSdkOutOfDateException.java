@@ -19,7 +19,7 @@ package com.google.cloud.tools.appengine.operations.cloudsdk;
 import com.google.cloud.tools.appengine.AppEngineException;
 import com.google.cloud.tools.appengine.operations.cloudsdk.serialization.CloudSdkVersion;
 import com.google.common.base.Preconditions;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /** The Cloud SDK that was found is too old (generally before 133.0.0). */
 public class CloudSdkOutOfDateException extends AppEngineException {
@@ -49,7 +49,7 @@ public class CloudSdkOutOfDateException extends AppEngineException {
    * @param requiredVersion minimum version of the Cloud SDK we want
    */
   public CloudSdkOutOfDateException(CloudSdkVersion requiredVersion) {
-    super(String.format(MESSAGE, requiredVersion.toString()));
+    super(MESSAGE.formatted(requiredVersion.toString()));
     this.requiredVersion = requiredVersion;
   }
 

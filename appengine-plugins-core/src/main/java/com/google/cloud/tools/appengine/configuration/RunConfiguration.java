@@ -17,11 +17,11 @@
 package com.google.cloud.tools.appengine.configuration;
 
 import com.google.common.base.Preconditions;
+import jakarta.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 
 public class RunConfiguration {
 

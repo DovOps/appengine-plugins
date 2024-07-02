@@ -17,7 +17,7 @@
 package com.google.cloud.tools.appengine.operations;
 
 import static com.google.common.base.StandardSystemProperty.JAVA_SPECIFICATION_VERSION;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -31,6 +31,7 @@ import com.google.cloud.tools.test.utils.LogStoringHandler;
 import com.google.cloud.tools.test.utils.SpyVerifier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,22 +40,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Unit tests for {@link DevServer}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DevServerJava8Test {
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  public File temporaryFolder;
   private Path fakeJavaSdkHome;
 
   private LogStoringHandler testHandler;
@@ -77,16 +78,16 @@ public class DevServerJava8Test {
   private final Map<String, String> expectedJava8Environment =
       ImmutableMap.of("GAE_ENV", "localdev", "GAE_RUNTIME", "java8");
 
-  @BeforeClass
+  @BeforeAll
   public static void disableIfJavaVersionAbove8() {
     assumeTrue(
-        "DevServerTestJava8 requires Java 8", JAVA_SPECIFICATION_VERSION.value().equals("1.8"));
+        JAVA_SPECIFICATION_VERSION.value().equals("1.8"), "DevServerTestJava8 requires Java 8");
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     devServer = Mockito.spy(new DevServer(sdk, devAppServerRunner));
-    fakeJavaSdkHome = temporaryFolder.newFolder("java-sdk").toPath();
+    fakeJavaSdkHome = newFolder(temporaryFolder, "java-sdk").toPath();
 
     Mockito.when(sdk.getAppEngineSdkForJavaPath()).thenReturn(fakeJavaSdkHome);
 
@@ -99,9 +100,9 @@ public class DevServerJava8Test {
         StopConfiguration.builder().host("alt-local-host").port(7777).build();
     try {
       devServer.stop(configuration);
-      Assert.fail();
+      Assertions.fail();
     } catch (AppEngineException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "Error connecting to http://alt-local-host:7777/_ah/admin/quit", ex.getMessage());
     }
   }
@@ -111,9 +112,9 @@ public class DevServerJava8Test {
     StopConfiguration configuration = StopConfiguration.builder().port(7777).build();
     try {
       devServer.stop(configuration);
-      Assert.fail();
+      Assertions.fail();
     } catch (AppEngineException ex) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "Error connecting to http://localhost:7777/_ah/admin/quit", ex.getMessage());
     }
   }
@@ -122,13 +123,13 @@ public class DevServerJava8Test {
   public void testNullSdk() {
     try {
       new DevServer(null, devAppServerRunner);
-      Assert.fail("Allowed null SDK");
+      Assertions.fail("Allowed null SDK");
     } catch (NullPointerException expected) {
     }
 
     try {
       new DevServer(sdk, null);
-      Assert.fail("Allowed null runner");
+      Assertions.fail("Allowed null runner");
     } catch (NullPointerException expected) {
     }
   }
@@ -436,56 +437,56 @@ public class DevServerJava8Test {
   public void testCheckAndWarnIgnored_withSetValue() {
     devServer.checkAndWarnIgnored(new Object(), "testName");
 
-    Assert.assertEquals(1, testHandler.getLogs().size());
+    Assertions.assertEquals(1, testHandler.getLogs().size());
 
-    LogRecord logRecord = testHandler.getLogs().get(0);
-    Assert.assertEquals(
+    LogRecord logRecord = testHandler.getLogs().getFirst();
+    Assertions.assertEquals(
         "testName only applies to Dev Appserver v2 and will be ignored by Dev Appserver v1",
         logRecord.getMessage());
-    Assert.assertEquals(Level.WARNING, logRecord.getLevel());
+    Assertions.assertEquals(Level.WARNING, logRecord.getLevel());
   }
 
   @Test
   public void testCheckAndWarnIgnored_withUnsetValue() {
     devServer.checkAndWarnIgnored(null, "testName");
 
-    Assert.assertEquals(0, testHandler.getLogs().size());
+    Assertions.assertEquals(0, testHandler.getLogs().size());
   }
 
   @Test
   public void testDetermineJavaRuntime_noWarningsJava7() throws AppEngineException {
-    Assert.assertTrue(devServer.isSandboxEnforced(ImmutableList.of(java7Service)));
-    Assert.assertEquals(0, testHandler.getLogs().size());
+    Assertions.assertTrue(devServer.isSandboxEnforced(ImmutableList.of(java7Service)));
+    Assertions.assertEquals(0, testHandler.getLogs().size());
   }
 
   @Test
   public void testDetermineJavaRuntime_noWarningsJava7Multiple() throws AppEngineException {
-    Assert.assertTrue(devServer.isSandboxEnforced(ImmutableList.of(java7Service, java7Service)));
-    Assert.assertEquals(0, testHandler.getLogs().size());
+    Assertions.assertTrue(devServer.isSandboxEnforced(ImmutableList.of(java7Service, java7Service)));
+    Assertions.assertEquals(0, testHandler.getLogs().size());
   }
 
   @Test
   public void testDetermineJavaRuntime_noWarningsJava8() throws AppEngineException {
-    Assert.assertFalse(devServer.isSandboxEnforced(ImmutableList.of(java8Service)));
-    Assert.assertEquals(0, testHandler.getLogs().size());
+    Assertions.assertFalse(devServer.isSandboxEnforced(ImmutableList.of(java8Service)));
+    Assertions.assertEquals(0, testHandler.getLogs().size());
   }
 
   @Test
   public void testDetermineJavaRuntime_noWarningsJava8Multiple() throws AppEngineException {
-    Assert.assertFalse(devServer.isSandboxEnforced(ImmutableList.of(java8Service, java8Service)));
-    Assert.assertEquals(0, testHandler.getLogs().size());
+    Assertions.assertFalse(devServer.isSandboxEnforced(ImmutableList.of(java8Service, java8Service)));
+    Assertions.assertEquals(0, testHandler.getLogs().size());
   }
 
   @Test
   public void testDetermineJavaRuntime_mixedModeWarning() throws AppEngineException {
 
-    Assert.assertFalse(devServer.isSandboxEnforced(ImmutableList.of(java8Service, java7Service)));
-    Assert.assertEquals(1, testHandler.getLogs().size());
+    Assertions.assertFalse(devServer.isSandboxEnforced(ImmutableList.of(java8Service, java7Service)));
+    Assertions.assertEquals(1, testHandler.getLogs().size());
 
-    LogRecord logRecord = testHandler.getLogs().get(0);
-    Assert.assertEquals(
+    LogRecord logRecord = testHandler.getLogs().getFirst();
+    Assertions.assertEquals(
         "Mixed runtimes detected, will not enforce sandbox restrictions.", logRecord.getMessage());
-    Assert.assertEquals(Level.WARNING, logRecord.getLevel());
+    Assertions.assertEquals(Level.WARNING, logRecord.getLevel());
   }
 
   @Test
@@ -513,13 +514,13 @@ public class DevServerJava8Test {
   @Test
   public void testGetLocalAppEngineEnvironmentVariables_java7() {
     Map<String, String> environment = DevServer.getLocalAppEngineEnvironmentVariables("java7");
-    Assert.assertEquals(expectedJava7Environment, environment);
+    Assertions.assertEquals(expectedJava7Environment, environment);
   }
 
   @Test
   public void testGetLocalAppEngineEnvironmentVariables_java8() {
     Map<String, String> environment = DevServer.getLocalAppEngineEnvironmentVariables("java8");
-    Assert.assertEquals(expectedJava8Environment, environment);
+    Assertions.assertEquals(expectedJava8Environment, environment);
   }
 
   @Test
@@ -528,16 +529,25 @@ public class DevServerJava8Test {
         DevServer.getLocalAppEngineEnvironmentVariables("some_other_runtime");
     Map<String, String> expectedEnvironment =
         ImmutableMap.of("GAE_ENV", "localdev", "GAE_RUNTIME", "some_other_runtime");
-    Assert.assertEquals(expectedEnvironment, environment);
+    Assertions.assertEquals(expectedEnvironment, environment);
   }
 
   @Test
   public void testGetGaeRuntimeJava_isJava8() {
-    Assert.assertEquals("java8", DevServer.getGaeRuntimeJava(true));
+    Assertions.assertEquals("java8", DevServer.getGaeRuntimeJava(true));
   }
 
   @Test
   public void testGetGaeRuntimeJava_isNotJava8() {
-    Assert.assertEquals("java7", DevServer.getGaeRuntimeJava(false));
+    Assertions.assertEquals("java7", DevServer.getGaeRuntimeJava(false));
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

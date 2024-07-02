@@ -10,24 +10,25 @@ import com.google.cloud.tools.maven.deploy.AppDeployer.ConfigBuilder;
 import com.google.cloud.tools.maven.stage.AppEngineWebXmlStager;
 import com.google.cloud.tools.maven.stage.AppYamlStager;
 import com.google.cloud.tools.maven.stage.Stager;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DeployerTest {
 
-  @Rule public final TemporaryFolder tempFolder = new TemporaryFolder();
+  @TempDir
+  public File tempFolder;
 
   @Mock private ConfigProcessor configProcessor;
 
@@ -44,9 +45,9 @@ public class DeployerTest {
 
   @InjectMocks private AppDeployer testDeployer;
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
-    stagingDirectory = tempFolder.newFolder("staging").toPath();
+    stagingDirectory = newFolder(tempFolder, "staging").toPath();
 
     Mockito.when(deployMojo.getStagingDirectory()).thenReturn(stagingDirectory);
     Mockito.when(deployMojo.getAppEngineFactory()).thenReturn(appEngineFactory);
@@ -56,26 +57,26 @@ public class DeployerTest {
   public void testNewDeployer_appengineWebXml() throws MojoExecutionException {
     Mockito.when(deployMojo.isAppEngineCompatiblePackaging()).thenReturn(true);
     Mockito.when(deployMojo.isAppEngineWebXmlBased()).thenReturn(true);
-    Mockito.when(deployMojo.getArtifact()).thenReturn(tempFolder.getRoot().toPath());
+    Mockito.when(deployMojo.getArtifact()).thenReturn(tempFolder.toPath());
 
     AppDeployer deployer = (AppDeployer) new Deployer.Factory().newDeployer(deployMojo);
-    Assert.assertEquals(
+    Assertions.assertEquals(
         deployMojo.getStagingDirectory().resolve("WEB-INF").resolve("appengine-generated"),
         deployer.appengineDirectory);
-    Assert.assertEquals(AppEngineWebXmlStager.class, deployer.stager.getClass());
+    Assertions.assertEquals(AppEngineWebXmlStager.class, deployer.stager.getClass());
   }
 
   @Test
   public void testNewDeployer_appYaml() throws MojoExecutionException, IOException {
-    Path appengineDir = tempFolder.newFolder().toPath();
+    Path appengineDir = newFolder(tempFolder, "junit").toPath();
     Mockito.when(deployMojo.isAppEngineCompatiblePackaging()).thenReturn(true);
-    Mockito.when(deployMojo.getArtifact()).thenReturn(tempFolder.getRoot().toPath());
+    Mockito.when(deployMojo.getArtifact()).thenReturn(tempFolder.toPath());
     Mockito.when(deployMojo.getAppEngineDirectory()).thenReturn(appengineDir);
 
     AppDeployer deployer = (AppDeployer) new Deployer.Factory().newDeployer(deployMojo);
     Mockito.verify(deployMojo, times(0)).getAppEngineWebXml();
-    Assert.assertEquals(appengineDir, deployer.appengineDirectory);
-    Assert.assertEquals(AppYamlStager.class, deployer.stager.getClass());
+    Assertions.assertEquals(appengineDir, deployer.appengineDirectory);
+    Assertions.assertEquals(AppYamlStager.class, deployer.stager.getClass());
   }
 
   @Test
@@ -83,11 +84,14 @@ public class DeployerTest {
     Mockito.when(deployMojo.isAppEngineCompatiblePackaging()).thenReturn(true);
     try {
       new Deployer.Factory().newDeployer(deployMojo);
-      Assert.fail();
+      Assertions.fail();
     } catch (MojoExecutionException ex) {
-      Assert.assertEquals(
-          "\nCould not determine appengine environment, did you package your application?"
-              + "\nRun 'mvn package appengine:deploy'",
+      Assertions.assertEquals(
+          """
+          
+          Could not determine appengine environment, did you package your application?
+          Run 'mvn package appengine:deploy'\
+          """,
           ex.getMessage());
     }
   }
@@ -95,7 +99,16 @@ public class DeployerTest {
   @Test
   public void testNewDeployer_noOpDeployer() throws MojoExecutionException {
     Mockito.when(deployMojo.isAppEngineCompatiblePackaging()).thenReturn(false);
-    Assert.assertEquals(
+    Assertions.assertEquals(
         NoOpDeployer.class, new Deployer.Factory().newDeployer(deployMojo).getClass());
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

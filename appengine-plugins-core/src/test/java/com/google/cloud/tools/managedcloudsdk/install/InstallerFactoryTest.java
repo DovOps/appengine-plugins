@@ -17,22 +17,20 @@
 package com.google.cloud.tools.managedcloudsdk.install;
 
 import com.google.cloud.tools.managedcloudsdk.OsInfo;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /** Tests for {@link InstallerFactory}. * */
-@RunWith(Parameterized.class)
 public class InstallerFactoryTest {
 
-  @Rule public TemporaryFolder tmp = new TemporaryFolder();
+  @TempDir
+  public File tmp;
 
-  @Parameterized.Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(
         new Object[][] {
@@ -41,17 +39,20 @@ public class InstallerFactoryTest {
           {new OsInfo(OsInfo.Name.WINDOWS, null), WindowsInstallScriptProvider.class}
         });
   }
-
-  @Parameterized.Parameter(0)
   public OsInfo os;
-
-  @Parameterized.Parameter(1)
   public Class<InstallScriptProvider> expectedInstallScriptProviderClass;
 
-  @Test
-  public void testNewInstaller_latestVersion() {
+  @MethodSource("data")
+  @ParameterizedTest
+  public void testNewInstaller_latestVersion(OsInfo os, Class<InstallScriptProvider> expectedInstallScriptProviderClass) {
+    initInstallerFactoryTest(os, expectedInstallScriptProviderClass);
     Installer installer = new InstallerFactory(os, false).newInstaller(null, null, null);
-    Assert.assertEquals(
+    Assertions.assertEquals(
         expectedInstallScriptProviderClass, installer.getInstallScriptProvider().getClass());
+  }
+
+  public void initInstallerFactoryTest(OsInfo os, Class<InstallScriptProvider> expectedInstallScriptProviderClass) {
+    this.os = os;
+    this.expectedInstallScriptProviderClass = expectedInstallScriptProviderClass;
   }
 }

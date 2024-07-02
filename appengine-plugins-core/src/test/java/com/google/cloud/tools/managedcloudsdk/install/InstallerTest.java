@@ -20,6 +20,8 @@ import com.google.cloud.tools.managedcloudsdk.ConsoleListener;
 import com.google.cloud.tools.managedcloudsdk.ProgressListener;
 import com.google.cloud.tools.managedcloudsdk.command.CommandRunner;
 import com.google.common.collect.ImmutableMap;
+import jakarta.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,18 +30,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for {@link Installer} */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InstallerTest {
 
   @Mock private InstallScriptProvider mockInstallScriptProvider;
@@ -47,17 +47,18 @@ public class InstallerTest {
   @Mock private ProgressListener mockProgressListener;
   @Mock private ConsoleListener mockConsoleListener;
 
-  @Rule public TemporaryFolder tmp = new TemporaryFolder();
+  @TempDir
+  public File tmp;
 
   private Path sdkParentDirectory;
   private Path fakeSdkRoot;
   private List<String> fakeCommand = Arrays.asList("scriptexec", "test-install.script");
   private Map<String, String> fakeEnv = ImmutableMap.of("PROPERTY", "value");
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
-    sdkParentDirectory = tmp.getRoot().toPath();
-    fakeSdkRoot = tmp.newFolder().toPath();
+    sdkParentDirectory = tmp.toPath();
+    fakeSdkRoot = newFolder(tmp, "junit").toPath();
     Mockito.when(mockInstallScriptProvider.getScriptCommandLine(fakeSdkRoot))
         .thenReturn(fakeCommand);
     Mockito.when(mockInstallScriptProvider.getScriptEnvironment()).thenReturn(fakeEnv);
@@ -134,5 +135,14 @@ public class InstallerTest {
     }
 
     return command;
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

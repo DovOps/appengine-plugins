@@ -16,8 +16,8 @@
 
 package com.google.cloud.tools.managedcloudsdk.command;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CommandExecutionExceptionTest {
 
@@ -26,14 +26,14 @@ public class CommandExecutionExceptionTest {
     String stderr = "bad result";
     Throwable cause = new RuntimeException();
     CommandExecutionException ex = new CommandExecutionException("a message", cause, stderr);
-    Assert.assertEquals("a message", ex.getMessage());
-    Assert.assertEquals("bad result", ex.getErrorLog());
+    Assertions.assertEquals("a message", ex.getMessage());
+    Assertions.assertEquals("bad result", ex.getErrorLog());
   }
 
   @Test
   public void testConstructor() {
     Throwable cause = new RuntimeException();
     CommandExecutionException ex = new CommandExecutionException(cause);
-    Assert.assertNull(ex.getErrorLog());
+    Assertions.assertNull(ex.getErrorLog());
   }
 }

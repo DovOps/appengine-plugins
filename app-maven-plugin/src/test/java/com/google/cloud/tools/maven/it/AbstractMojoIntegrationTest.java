@@ -24,13 +24,13 @@ import com.google.cloud.tools.maven.it.verifier.TailingVerifier;
 import java.io.IOException;
 import java.util.Arrays;
 import org.apache.maven.it.VerificationException;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractMojoIntegrationTest {
 
   private static boolean doneInstallPlugin = false;
 
-  @BeforeClass
+  @BeforeAll
   public static void installPlugin() throws VerificationException {
     // install the plugin under test
     if (!doneInstallPlugin) {

@@ -16,17 +16,17 @@
 
 package com.google.cloud.tools.appengine.operations.cloudsdk.internal.args;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Unit tests for {@link GcloudArgs} */
 public class GcloudArgsTest {
@@ -52,12 +52,13 @@ public class GcloudArgsTest {
     assertEquals(Arrays.asList("--name2", "2"), GcloudArgs.get("name2", 2));
   }
 
-  @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
+  @TempDir
+  public File tmpDir;
 
   @Test
   public void testGet_path() throws IOException {
-    Path file1 = tmpDir.newFile("file1").toPath();
-    Path file2 = tmpDir.newFile("file2").toPath();
+    Path file1 = File.createTempFile("file1", null, tmpDir).toPath();
+    Path file2 = File.createTempFile("file2", null, tmpDir).toPath();
     assertEquals(
         Arrays.asList("--name1", file1.toAbsolutePath().toString()),
         GcloudArgs.get("name1", file1));

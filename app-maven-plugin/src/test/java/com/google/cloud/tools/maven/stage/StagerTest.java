@@ -16,20 +16,21 @@
 
 package com.google.cloud.tools.maven.stage;
 
+import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class StagerTest {
 
-  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+  @TempDir
+  public File tempFolder;
 
   @Mock private AbstractStageMojo stageMojo;
 
@@ -37,27 +38,27 @@ public class StagerTest {
   public void testNewStager_noOpStager() throws MojoExecutionException {
     Mockito.when(stageMojo.isAppEngineCompatiblePackaging()).thenReturn(false);
     Stager stager = Stager.newStager(stageMojo);
-    Assert.assertEquals(NoOpStager.class, stager.getClass());
+    Assertions.assertEquals(NoOpStager.class, stager.getClass());
   }
 
   @Test
   public void testNewStager_xml() throws MojoExecutionException {
     Mockito.when(stageMojo.isAppEngineCompatiblePackaging()).thenReturn(true);
     Mockito.when(stageMojo.isAppEngineWebXmlBased()).thenReturn(true);
-    Mockito.when(stageMojo.getArtifact()).thenReturn(tempFolder.getRoot().toPath());
+    Mockito.when(stageMojo.getArtifact()).thenReturn(tempFolder.toPath());
 
     Stager stager = Stager.newStager(stageMojo);
-    Assert.assertEquals(AppEngineWebXmlStager.class, stager.getClass());
+    Assertions.assertEquals(AppEngineWebXmlStager.class, stager.getClass());
   }
 
   @Test
   public void testNewStager_yaml() throws MojoExecutionException {
     Mockito.when(stageMojo.isAppEngineCompatiblePackaging()).thenReturn(true);
     Mockito.when(stageMojo.isAppEngineWebXmlBased()).thenReturn(false);
-    Mockito.when(stageMojo.getArtifact()).thenReturn(tempFolder.getRoot().toPath());
+    Mockito.when(stageMojo.getArtifact()).thenReturn(tempFolder.toPath());
 
     Stager stager = Stager.newStager(stageMojo);
-    Assert.assertEquals(AppYamlStager.class, stager.getClass());
+    Assertions.assertEquals(AppYamlStager.class, stager.getClass());
   }
 
   @Test
@@ -65,11 +66,14 @@ public class StagerTest {
     Mockito.when(stageMojo.isAppEngineCompatiblePackaging()).thenReturn(true);
     try {
       Stager.newStager(stageMojo);
-      Assert.fail();
+      Assertions.fail();
     } catch (MojoExecutionException ex) {
-      Assert.assertEquals(
-          "\nCould not determine appengine environment, did you package your application?"
-              + "\nRun 'mvn package appengine:stage'",
+      Assertions.assertEquals(
+          """
+          
+          Could not determine appengine environment, did you package your application?
+          Run 'mvn package appengine:stage'\
+          """,
           ex.getMessage());
     }
   }

@@ -28,20 +28,20 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandl
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Unit tests for {@link Versions}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class VersionsTest {
 
   @Mock private GcloudRunner gcloudRunner;
   Versions appEngineVersions;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     appEngineVersions = new Versions(gcloudRunner);
   }

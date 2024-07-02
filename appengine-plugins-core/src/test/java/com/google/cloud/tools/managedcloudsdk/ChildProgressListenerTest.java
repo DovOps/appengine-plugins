@@ -16,15 +16,15 @@
 
 package com.google.cloud.tools.managedcloudsdk;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ChildProgressListenerTest {
 
   @Mock private ProgressListener mockParent;
@@ -139,7 +139,7 @@ public class ChildProgressListenerTest {
 
     try {
       testListener.done();
-      Assert.fail("expected illegal argument exception");
+      Assertions.fail("expected illegal argument exception");
     } catch (IllegalArgumentException ex) {
       // pass
     }
@@ -152,7 +152,7 @@ public class ChildProgressListenerTest {
     testListener.start("asdf", 100);
     try {
       testListener.start("asdf", 100);
-      Assert.fail("expected illegal argument exception");
+      Assertions.fail("expected illegal argument exception");
     } catch (IllegalArgumentException ex) {
       // pass
     }
@@ -164,7 +164,7 @@ public class ChildProgressListenerTest {
 
     try {
       testListener.update(100);
-      Assert.fail("expected illegal argument exception");
+      Assertions.fail("expected illegal argument exception");
     } catch (IllegalArgumentException ex) {
       // pass
     }
@@ -176,7 +176,7 @@ public class ChildProgressListenerTest {
 
     try {
       testListener.update("hello");
-      Assert.fail("expected illegal argument exception");
+      Assertions.fail("expected illegal argument exception");
     } catch (IllegalArgumentException ex) {
       // pass
     }
@@ -190,7 +190,7 @@ public class ChildProgressListenerTest {
     testListener.done();
     try {
       testListener.update(100);
-      Assert.fail("expected illegal argument exception");
+      Assertions.fail("expected illegal argument exception");
     } catch (IllegalArgumentException ex) {
       // pass
     }
@@ -204,7 +204,7 @@ public class ChildProgressListenerTest {
     testListener.done();
     try {
       testListener.update("hello");
-      Assert.fail("expected illegal argument exception");
+      Assertions.fail("expected illegal argument exception");
     } catch (IllegalArgumentException ex) {
       // pass
     }
@@ -218,7 +218,7 @@ public class ChildProgressListenerTest {
     testListener.done();
     try {
       testListener.start("asdf", 1000);
-      Assert.fail("expected illegal argument exception");
+      Assertions.fail("expected illegal argument exception");
     } catch (IllegalArgumentException ex) {
       // pass
     }

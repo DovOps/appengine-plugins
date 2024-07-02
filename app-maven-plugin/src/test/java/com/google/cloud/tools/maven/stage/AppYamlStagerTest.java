@@ -22,12 +22,12 @@ import com.google.cloud.tools.appengine.configuration.AppYamlProjectStageConfigu
 import com.google.cloud.tools.appengine.operations.AppYamlProjectStaging;
 import com.google.cloud.tools.maven.cloudsdk.CloudSdkAppEngineFactory;
 import com.google.cloud.tools.maven.stage.AppYamlStager.ConfigBuilder;
+import java.io.File;
 import junitparams.JUnitParamsRunner;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -36,7 +36,8 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnitParamsRunner.class)
 public class AppYamlStagerTest {
 
-  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+  @TempDir
+  public File tempFolder;
 
   @Mock private CloudSdkAppEngineFactory appengineFactory;
   @Mock private MavenProject mavenProject;
@@ -48,7 +49,7 @@ public class AppYamlStagerTest {
   @Mock private AbstractStageMojo stageMojo;
   @InjectMocks private AppYamlStager testStager;
 
-  @Before
+  @BeforeEach
   public void configureStageMojo() {
     MockitoAnnotations.initMocks(this);
     when(stageMojo.getMavenProject()).thenReturn(mavenProject);
@@ -56,6 +57,6 @@ public class AppYamlStagerTest {
     when(stageMojo.getAppEngineFactory()).thenReturn(appengineFactory);
     when(appengineFactory.appYamlStaging()).thenReturn(staging);
     when(configBuilder.buildConfiguration()).thenReturn(stagingConfiguration);
-    when(stagingConfiguration.getStagingDirectory()).thenReturn(tempFolder.getRoot().toPath());
+    when(stagingConfiguration.getStagingDirectory()).thenReturn(tempFolder.toPath());
   }
 }

@@ -22,9 +22,9 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 public class WindowsInstallScriptProviderTest {
 
@@ -33,27 +33,27 @@ public class WindowsInstallScriptProviderTest {
     try {
       new UnixInstallScriptProvider(Collections.emptyMap())
           .getScriptCommandLine(Paths.get("relative/path"));
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException e) {
-      Assert.assertEquals("non-absolute SDK path", e.getMessage());
+      Assertions.assertEquals("non-absolute SDK path", e.getMessage());
     }
   }
 
   @Test
   public void testGetScriptCommandLine() {
-    Assume.assumeTrue(System.getProperty("os.name").startsWith("Windows"));
+    Assumptions.assumeTrue(System.getProperty("os.name").startsWith("Windows"));
 
     Path sdkRoot = Paths.get("C:\\path\\to\\sdk");
     List<String> commandLine =
         new WindowsInstallScriptProvider(Collections.emptyMap()).getScriptCommandLine(sdkRoot);
 
-    Assert.assertEquals(3, commandLine.size());
-    Assert.assertEquals("cmd.exe", commandLine.get(0));
-    Assert.assertEquals("/c", commandLine.get(1));
+    Assertions.assertEquals(3, commandLine.size());
+    Assertions.assertEquals("cmd.exe", commandLine.getFirst());
+    Assertions.assertEquals("/c", commandLine.get(1));
 
     Path scriptPath = Paths.get(commandLine.get(2));
-    Assert.assertTrue(scriptPath.isAbsolute());
-    Assert.assertEquals(Paths.get("C:\\path\\to\\sdk\\install.bat"), scriptPath);
+    Assertions.assertTrue(scriptPath.isAbsolute());
+    Assertions.assertEquals(Paths.get("C:\\path\\to\\sdk\\install.bat"), scriptPath);
   }
 
   @Test
@@ -62,7 +62,7 @@ public class WindowsInstallScriptProviderTest {
     Map<String, String> environment =
         new WindowsInstallScriptProvider(proxyVariable).getScriptEnvironment();
 
-    Assert.assertEquals(
+    Assertions.assertEquals(
         environment,
         ImmutableMap.of("CLOUDSDK_CORE_DISABLE_PROMPTS", "1", "http_proxy", "test-proxy:8080"));
   }

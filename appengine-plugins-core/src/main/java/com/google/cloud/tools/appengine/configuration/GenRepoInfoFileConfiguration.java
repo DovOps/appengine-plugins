@@ -17,8 +17,8 @@
 package com.google.cloud.tools.appengine.configuration;
 
 import com.google.cloud.tools.appengine.operations.GenRepoInfoFile;
+import jakarta.annotation.Nullable;
 import java.nio.file.Path;
-import javax.annotation.Nullable;
 
 /** Configuration for {@link GenRepoInfoFile#generate(GenRepoInfoFileConfiguration)}. */
 public class GenRepoInfoFileConfiguration {

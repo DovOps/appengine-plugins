@@ -16,16 +16,16 @@
 
 package com.google.cloud.tools.libraries.json;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for {@link CloudLibrary}. */
 public final class CloudLibraryTest {
@@ -81,7 +81,7 @@ public final class CloudLibraryTest {
 
   @Test
   public void parse_withMissingFields_returnsObjectWithNulls() {
-    String json = String.format("{name:%s}", wrap(NAME));
+    String json = "{name:%s}".formatted(wrap(NAME));
     CloudLibrary library = parse(json);
     assertEquals(NAME, library.getName());
     assertNull(library.getId());
@@ -95,13 +95,13 @@ public final class CloudLibraryTest {
   public void parse_withMultipleTransports_returnsObjectWithMultipleTransports() {
     String transport1 = "transport1";
     String transport2 = "transport2";
-    String json = String.format("{transports:[%s, %s]}", transport1, transport2);
+    String json = "{transports:[%s, %s]}".formatted(transport1, transport2);
     CloudLibrary library = parse(json);
 
     List<String> transports = library.getTransports();
-    assertNotNull("expected 2 transports", transports);
-    assertEquals("expected 2 transports", 2, transports.size());
-    assertEquals(transport1, transports.get(0));
+    assertNotNull(transports, "expected 2 transports");
+    assertEquals(2, transports.size(), "expected 2 transports");
+    assertEquals(transport1, transports.getFirst());
     assertEquals(transport2, transports.get(1));
   }
 
@@ -109,15 +109,15 @@ public final class CloudLibraryTest {
   public void parse_withMultipleClients_returnsObjectWithMultipleClients() {
     String client1 = "client1";
     String client2 = "client2";
-    String client1Json = String.format("{name:%s}", client1);
-    String client2Json = String.format("{name:%s}", client2);
-    String json = String.format("{clients:[%s, %s]}", client1Json, client2Json);
+    String client1Json = "{name:%s}".formatted(client1);
+    String client2Json = "{name:%s}".formatted(client2);
+    String json = "{clients:[%s, %s]}".formatted(client1Json, client2Json);
     CloudLibrary library = parse(json);
 
     List<CloudLibraryClient> clients = library.getClients();
-    assertNotNull("expected 2 clients", clients);
-    assertEquals("expected 2 clients", 2, clients.size());
-    assertEquals(client1, clients.get(0).getName());
+    assertNotNull(clients, "expected 2 clients");
+    assertEquals(2, clients.size(), "expected 2 clients");
+    assertEquals(client1, clients.getFirst().getName());
     assertEquals(client2, clients.get(1).getName());
   }
 
@@ -160,11 +160,13 @@ public final class CloudLibraryTest {
    * CloudLibrary}.
    */
   private static String createFullyPopulatedJson() {
-    return String.format(
-        "{name:%s,id:%s,serviceName:%s,serviceRoles:[%s],documentation:%s,description:%s,"
-            + "transports:[%s],clients:[{name:%s,language:%s,site:%s,apireference:%s,"
-            + "infotip:%s,launchStage:%s,source:%s,languageLevel:%s,mavenCoordinates:{groupId:%s,"
-            + "artifactId:%s,version:%s}}]}",
+    return (
+        """
+        {name:%s,id:%s,serviceName:%s,serviceRoles:[%s],documentation:%s,description:%s,\
+        transports:[%s],clients:[{name:%s,language:%s,site:%s,apireference:%s,\
+        infotip:%s,launchStage:%s,source:%s,languageLevel:%s,mavenCoordinates:{groupId:%s,\
+        artifactId:%s,version:%s}}]}\
+        """).formatted(
         wrap(NAME),
         wrap(ID),
         wrap(SERVICE_NAME),
@@ -187,6 +189,6 @@ public final class CloudLibraryTest {
 
   /** Wraps the given string in quotes and returns the result. */
   private static String wrap(String text) {
-    return String.format("\"%s\"", text);
+    return "\"%s\"".formatted(text);
   }
 }

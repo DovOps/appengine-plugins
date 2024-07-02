@@ -33,8 +33,11 @@ public interface Deployer {
       }
       if (deployMojo.getArtifact() == null || !Files.exists(deployMojo.getArtifact())) {
         throw new MojoExecutionException(
-            "\nCould not determine appengine environment, did you package your application?"
-                + "\nRun 'mvn package appengine:deploy'");
+            """
+            
+            Could not determine appengine environment, did you package your application?
+            Run 'mvn package appengine:deploy'\
+            """);
       }
 
       ConfigProcessor configProcessor =

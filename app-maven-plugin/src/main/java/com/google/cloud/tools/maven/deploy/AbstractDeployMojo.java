@@ -81,8 +81,10 @@ public abstract class AbstractDeployMojo extends AbstractStageMojo {
       }
       getLog()
           .warn(
-              "Configuring <project> is deprecated,"
-                  + " use <projectId> to set your Google Cloud ProjectId");
+              """
+              Configuring <project> is deprecated,\
+               use <projectId> to set your Google Cloud ProjectId\
+              """);
       return project;
     }
     return projectId;

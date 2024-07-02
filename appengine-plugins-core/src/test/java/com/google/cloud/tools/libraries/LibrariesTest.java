@@ -16,6 +16,7 @@
 
 package com.google.cloud.tools.libraries;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 
 import com.google.common.collect.Maps;
@@ -32,24 +33,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonString;
-import org.hamcrest.MatcherAssert;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonReaderFactory;
+import jakarta.json.JsonString;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LibrariesTest {
 
   private JsonObject[] apis;
   private CookieHandler oldCookieHandler;
 
-  @Before
+  @BeforeEach
   public void parseJson() {
     oldCookieHandler = CookieHandler.getDefault();
     // https://github.com/GoogleCloudPlatform/appengine-plugins-core/issues/822
@@ -61,14 +61,14 @@ public class LibrariesTest {
     apis = reader.readArray().toArray(new JsonObject[0]);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     CookieHandler.setDefault(oldCookieHandler);
   }
 
   @Test
   public void testJson() throws IOException {
-    Assert.assertTrue(apis.length > 0);
+    Assertions.assertTrue(apis.length > 0);
     for (int i = 0; i < apis.length; i++) {
       assertApi(apis[i]);
     }
@@ -80,15 +80,15 @@ public class LibrariesTest {
 
   private static void assertApi(JsonObject api) throws IOException {
     String id = api.getString("id");
-    Assert.assertTrue(id.matches("[a-z]+"));
-    Assert.assertFalse(api.getString("serviceName").isEmpty());
-    Assert.assertFalse(api.getString("name").isEmpty());
-    Assert.assertFalse(api.getString("name").contains("Google"));
-    Assert.assertFalse(api.getString("description").isEmpty());
+    Assertions.assertTrue(id.matches("[a-z]+"));
+    Assertions.assertFalse(api.getString("serviceName").isEmpty());
+    Assertions.assertFalse(api.getString("name").isEmpty());
+    Assertions.assertFalse(api.getString("name").contains("Google"));
+    Assertions.assertFalse(api.getString("description").isEmpty());
     String transports = api.getJsonArray("transports").getString(0);
-    Assert.assertTrue(
-        transports + " is not a recognized transport",
-        "http".equals(transports) || "grpc".equals(transports));
+    Assertions.assertTrue(
+        "http".equals(transports) || "grpc".equals(transports),
+        transports + " is not a recognized transport");
     assertReachable(api.getString("documentation"));
     try {
       assertReachable(api.getString("icon"));
@@ -96,30 +96,30 @@ public class LibrariesTest {
       // no icon element to test
     }
     JsonArray clients = api.getJsonArray("clients");
-    Assert.assertFalse(clients.isEmpty());
+    Assertions.assertFalse(clients.isEmpty());
     for (int i = 0; i < clients.size(); i++) {
       JsonObject client = (JsonObject) clients.get(i);
       String launchStage = client.getString("launchStage");
-      MatcherAssert.assertThat(statuses, hasItemInArray(launchStage));
+      assertThat(statuses, hasItemInArray(launchStage));
       try {
         assertReachable(client.getString("site"));
       } catch (NullPointerException ex) {
         // no site element to test
       }
       assertReachable(client.getString("apireference"));
-      Assert.assertTrue(client.getString("languageLevel").matches("1\\.\\d+\\.\\d+"));
-      Assert.assertFalse(client.getString("name").isEmpty());
+      Assertions.assertTrue(client.getString("languageLevel").matches("1\\.\\d+\\.\\d+"));
+      Assertions.assertFalse(client.getString("name").isEmpty());
       JsonString language = client.getJsonString("language");
-      Assert.assertNotNull("Missing language in " + client.getString("name"), language);
-      Assert.assertEquals("java", language.getString());
+      Assertions.assertNotNull(language, "Missing language in " + client.getString("name"));
+      Assertions.assertEquals("java", language.getString());
       JsonObject mavenCoordinates = client.getJsonObject("mavenCoordinates");
       String version = mavenCoordinates.getString("version");
-      Assert.assertFalse(version.isEmpty());
+      Assertions.assertFalse(version.isEmpty());
       if (!version.endsWith(launchStage)) {
-        Assert.assertTrue(version.matches("\\d+\\.\\d+\\.\\d+"));
+        Assertions.assertTrue(version.matches("\\d+\\.\\d+\\.\\d+"));
       }
-      Assert.assertFalse(mavenCoordinates.getString("artifactId").isEmpty());
-      Assert.assertFalse(mavenCoordinates.getString("groupId").isEmpty());
+      Assertions.assertFalse(mavenCoordinates.getString("artifactId").isEmpty());
+      Assertions.assertFalse(mavenCoordinates.getString("groupId").isEmpty());
       if (client.getString("source") != null) {
         assertReachable(client.getString("source"));
       }
@@ -131,9 +131,9 @@ public class LibrariesTest {
     connection.setConnectTimeout(10000);
     connection.setRequestMethod("HEAD");
     try {
-      Assert.assertEquals("Could not reach " + url, 200, connection.getResponseCode());
+      Assertions.assertEquals(200, connection.getResponseCode(), "Could not reach " + url);
     } catch (SocketTimeoutException e) {
-      Assert.fail("Connection to '" + url + "' timed out.");
+      Assertions.fail("Connection to '" + url + "' timed out.");
     }
   }
 
@@ -145,17 +145,17 @@ public class LibrariesTest {
       String name = api.getString("name");
       String serviceName = api.getString("serviceName");
       if (apiCoordinates.containsKey(name)) {
-        Assert.fail("name: " + name + " is defined twice");
+        Assertions.fail("name: " + name + " is defined twice");
       }
       if (serviceNames.contains(serviceName)) {
-        Assert.fail("service name: " + serviceName + " is defined twice");
+        Assertions.fail("service name: " + serviceName + " is defined twice");
       }
       JsonObject coordinates =
-          ((JsonObject) api.getJsonArray("clients").get(0)).getJsonObject("mavenCoordinates");
+          ((JsonObject) api.getJsonArray("clients").getFirst()).getJsonObject("mavenCoordinates");
       String mavenCoordinates =
           coordinates.getString("groupId") + ":" + coordinates.getString("artifactId");
       if (apiCoordinates.containsValue(mavenCoordinates)) {
-        Assert.fail(mavenCoordinates + " is defined twice");
+        Assertions.fail(mavenCoordinates + " is defined twice");
       }
       apiCoordinates.put(name, mavenCoordinates);
       serviceNames.add(serviceName);
@@ -171,7 +171,7 @@ public class LibrariesTest {
         for (int i = 0; i < serviceRoles.size(); i++) {
           String role = serviceRoles.getString(i);
           if (roles.contains(role)) {
-            Assert.fail("Role: " + role + " is defined multiple times");
+            Assertions.fail("Role: " + role + " is defined multiple times");
           }
           roles.add(role);
         }
@@ -183,7 +183,7 @@ public class LibrariesTest {
   public void testVersionExists() throws IOException {
     for (JsonObject api : apis) {
       JsonObject coordinates =
-          ((JsonObject) api.getJsonArray("clients").get(0)).getJsonObject("mavenCoordinates");
+          ((JsonObject) api.getJsonArray("clients").getFirst()).getJsonObject("mavenCoordinates");
       String repo =
           "https://repo1.maven.org/maven2/"
               + coordinates.getString("groupId").replace('.', '/')
@@ -205,7 +205,7 @@ public class LibrariesTest {
     for (int i = 1; i < names.size(); i++) {
       String previous = names.get(i - 1).toLowerCase(Locale.US);
       String current = names.get(i).toLowerCase(Locale.US);
-      Assert.assertTrue(current + " < " + previous, current.compareTo(previous) > 0);
+      Assertions.assertTrue(current.compareTo(previous) > 0, current + " < " + previous);
     }
   }
 }

@@ -35,9 +35,11 @@ public class GenRepoInfoFileMojo extends CloudSdkMojo {
 
   private static Logger logger = Logger.getLogger(GenRepoInfoFileMojo.class.getName());
   private static final String HOW_TO_FIX_MSG =
-      "An error occurred while generating source context"
-          + " files. Make sure your project is in a Git repository. To ignore source context"
-          + " generation errors, use the -Dapp.genRepoInfoFile.ignoreErrors=true flag.";
+      """
+      An error occurred while generating source context\
+       files. Make sure your project is in a Git repository. To ignore source context\
+       generation errors, use the -Dapp.genRepoInfoFile.ignoreErrors=true flag.\
+      """;
 
   /**
    * The root directory containing the source code of the app. Expected to be contained in a git

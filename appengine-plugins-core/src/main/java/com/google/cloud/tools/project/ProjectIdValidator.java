@@ -16,9 +16,9 @@
 
 package com.google.cloud.tools.project;
 
+import jakarta.annotation.Nullable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 
 /**
  * Check if a string is a legal <a

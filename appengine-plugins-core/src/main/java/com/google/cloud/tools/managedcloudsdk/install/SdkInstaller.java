@@ -25,6 +25,7 @@ import com.google.cloud.tools.managedcloudsdk.command.CommandExitException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +33,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /** Install an SDK by downloading, extracting and if necessary installing. */
 public class SdkInstaller {

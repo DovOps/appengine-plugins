@@ -20,26 +20,27 @@ import com.google.cloud.tools.managedcloudsdk.process.ProcessExecutor;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for {@link CommandCaller} */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CommandCallerTest {
 
-  @Rule public TemporaryFolder testDir = new TemporaryFolder();
+  @TempDir
+  public File testDir;
 
   @Mock private ProcessExecutor mockProcessExecutor;
   @Mock private AsyncStreamSaver mockStdoutSaver;
@@ -54,10 +55,10 @@ public class CommandCallerTest {
 
   private CommandCaller testCommandCaller;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException, InterruptedException {
     fakeCommand = Arrays.asList("gcloud", "test", "--option");
-    fakeWorkingDirectory = testDir.getRoot().toPath();
+    fakeWorkingDirectory = testDir.toPath();
     fakeEnvironment = ImmutableMap.of("testKey", "testValue");
 
     Mockito.when(mockStreamSaverFactory.newSaver())
@@ -89,7 +90,7 @@ public class CommandCallerTest {
   @Test
   public void testCall()
       throws IOException, InterruptedException, CommandExecutionException, CommandExitException {
-    Assert.assertEquals(
+    Assertions.assertEquals(
         "stdout", testCommandCaller.call(fakeCommand, fakeWorkingDirectory, fakeEnvironment));
     verifyCommandExecution();
   }
@@ -108,11 +109,11 @@ public class CommandCallerTest {
 
     try {
       testCommandCaller.call(fakeCommand, fakeWorkingDirectory, fakeEnvironment);
-      Assert.fail("CommandExitException expected but not found.");
+      Assertions.fail("CommandExitException expected but not found.");
     } catch (CommandExitException ex) {
-      Assert.assertEquals("Process failed with exit code: 10\nstdout\nstderr", ex.getMessage());
-      Assert.assertEquals(10, ex.getExitCode());
-      Assert.assertEquals("stdout\nstderr", ex.getErrorLog());
+      Assertions.assertEquals("Process failed with exit code: 10\nstdout\nstderr", ex.getMessage());
+      Assertions.assertEquals(10, ex.getExitCode());
+      Assertions.assertEquals("stdout\nstderr", ex.getErrorLog());
     }
     verifyCommandExecution();
   }
@@ -132,9 +133,9 @@ public class CommandCallerTest {
 
     try {
       testCommandCaller.call(fakeCommand, fakeWorkingDirectory, fakeEnvironment);
-      Assert.fail("CommandExecutionException expected but not found.");
+      Assertions.fail("CommandExecutionException expected but not found.");
     } catch (CommandExecutionException ex) {
-      Assert.assertEquals("stdout\nstderr", ex.getMessage());
+      Assertions.assertEquals("stdout\nstderr", ex.getMessage());
     }
 
     verifyCommandExecution();
@@ -155,7 +156,7 @@ public class CommandCallerTest {
 
     try {
       testCommandCaller.call(fakeCommand, fakeWorkingDirectory, fakeEnvironment);
-      Assert.fail("InterruptedException expected but not found.");
+      Assertions.fail("InterruptedException expected but not found.");
     } catch (InterruptedException ex) {
       // pass
     }

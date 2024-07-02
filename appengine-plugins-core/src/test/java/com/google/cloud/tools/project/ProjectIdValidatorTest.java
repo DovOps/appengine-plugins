@@ -16,52 +16,54 @@
 
 package com.google.cloud.tools.project;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ProjectIdValidatorTest {
 
   @Test
   public void testDomain() {
-    Assert.assertTrue(ProjectIdValidator.validate("google.com:mystore"));
+    Assertions.assertTrue(ProjectIdValidator.validate("google.com:mystore"));
   }
 
   @Test
   public void testPartition() {
-    Assert.assertTrue(ProjectIdValidator.validate("s~google.com:mystore"));
+    Assertions.assertTrue(ProjectIdValidator.validate("s~google.com:mystore"));
   }
 
   @Test
   public void testOneWord() {
-    Assert.assertTrue(ProjectIdValidator.validate("word"));
+    Assertions.assertTrue(ProjectIdValidator.validate("word"));
   }
 
   @Test
   public void testUpperCase() {
-    Assert.assertTrue(ProjectIdValidator.validate("WORD"));
+    Assertions.assertTrue(ProjectIdValidator.validate("WORD"));
   }
 
   @Test
   public void testLongWord() {
     boolean validate =
         ProjectIdValidator.validate(
-            "012345678901234567890123456789012345678901234567890123456789"
-                + "012345678901234567890123456789012345678901234567890");
-    Assert.assertFalse(validate);
+            """
+            012345678901234567890123456789012345678901234567890123456789\
+            012345678901234567890123456789012345678901234567890\
+            """);
+    Assertions.assertFalse(validate);
   }
 
   @Test
   public void testContainsSpace() {
-    Assert.assertFalse(ProjectIdValidator.validate("com google eclipse"));
+    Assertions.assertFalse(ProjectIdValidator.validate("com google eclipse"));
   }
 
   @Test
   public void testEmptyString() {
-    Assert.assertFalse(ProjectIdValidator.validate(""));
+    Assertions.assertFalse(ProjectIdValidator.validate(""));
   }
 
   @Test
   public void testNull() {
-    Assert.assertFalse(ProjectIdValidator.validate(null));
+    Assertions.assertFalse(ProjectIdValidator.validate(null));
   }
 }

@@ -15,72 +15,76 @@
 package com.google.cloud.tools.appengine.operations.cloudsdk.serialization;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.cloud.tools.appengine.operations.cloudsdk.JsonParseException;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class AppEngineDeployResultTest {
 
   private static final String ONE_VERSION =
-      "{"
-          + "  'configs': [],"
-          + "  'versions': ["
-          + "    {"
-          + "      'id': '20160429t112518',"
-          + "      'last_deployed_time': null,"
-          + "      'project': 'bizarre-project',"
-          + "      'service': 'display-service',"
-          + "      'traffic_split': null,"
-          + "      'version': null"
-          + "    }"
-          + "  ]"
-          + "}";
+      """
+      {\
+        'configs': [],\
+        'versions': [\
+          {\
+            'id': '20160429t112518',\
+            'last_deployed_time': null,\
+            'project': 'bizarre-project',\
+            'service': 'display-service',\
+            'traffic_split': null,\
+            'version': null\
+          }\
+        ]\
+      }\
+      """;
 
   private static final String TWO_VERSIONS =
-      "{"
-          + "  'configs': [],"
-          + "  'versions': ["
-          + "    {"
-          + "      'id': '20160429t112518',"
-          + "      'last_deployed_time': null,"
-          + "      'project': 'bizarre-project',"
-          + "      'service': 'display-service',"
-          + "      'traffic_split': null,"
-          + "      'version': null"
-          + "    },"
-          + "    {"
-          + "      'id': '20170805t091353',"
-          + "      'last_deployed_time': null,"
-          + "      'project': 'another-project',"
-          + "      'service': 'awesome-service',"
-          + "      'traffic_split': null,"
-          + "      'version': null"
-          + "    }"
-          + "  ]"
-          + "}";
+      """
+      {\
+        'configs': [],\
+        'versions': [\
+          {\
+            'id': '20160429t112518',\
+            'last_deployed_time': null,\
+            'project': 'bizarre-project',\
+            'service': 'display-service',\
+            'traffic_split': null,\
+            'version': null\
+          },\
+          {\
+            'id': '20170805t091353',\
+            'last_deployed_time': null,\
+            'project': 'another-project',\
+            'service': 'awesome-service',\
+            'traffic_split': null,\
+            'version': null\
+          }\
+        ]\
+      }\
+      """;
 
   @Test
   public void testParse_oneVersion() throws JsonParseException {
     AppEngineDeployResult json = AppEngineDeployResult.parse(ONE_VERSION);
-    Assert.assertEquals("20160429t112518", json.getVersion(0));
-    Assert.assertEquals("display-service", json.getService(0));
-    Assert.assertEquals("bizarre-project", json.getProject(0));
+    Assertions.assertEquals("20160429t112518", json.getVersion(0));
+    Assertions.assertEquals("display-service", json.getService(0));
+    Assertions.assertEquals("bizarre-project", json.getProject(0));
   }
 
   @Test
   public void testParse_twoVersions() throws JsonParseException {
     AppEngineDeployResult json = AppEngineDeployResult.parse(TWO_VERSIONS);
-    Assert.assertEquals("20160429t112518", json.getVersion(0));
-    Assert.assertEquals("display-service", json.getService(0));
-    Assert.assertEquals("bizarre-project", json.getProject(0));
+    Assertions.assertEquals("20160429t112518", json.getVersion(0));
+    Assertions.assertEquals("display-service", json.getService(0));
+    Assertions.assertEquals("bizarre-project", json.getProject(0));
 
-    Assert.assertEquals("20170805t091353", json.getVersion(1));
-    Assert.assertEquals("awesome-service", json.getService(1));
-    Assert.assertEquals("another-project", json.getProject(1));
+    Assertions.assertEquals("20170805t091353", json.getVersion(1));
+    Assertions.assertEquals("awesome-service", json.getService(1));
+    Assertions.assertEquals("another-project", json.getProject(1));
   }
 
   @Test

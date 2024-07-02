@@ -17,8 +17,8 @@
 package com.google.cloud.tools.appengine.operations.cloudsdk.process;
 
 import com.google.cloud.tools.appengine.AppEngineException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class NonZeroExceptionExitListenerTest {
 
@@ -28,9 +28,9 @@ public class NonZeroExceptionExitListenerTest {
   public void testOnExit_exception() {
     try {
       listener.onExit(18);
-      Assert.fail();
+      Assertions.fail();
     } catch (AppEngineException ex) {
-      Assert.assertNotNull(ex.getMessage());
+      Assertions.assertNotNull(ex.getMessage());
     }
   }
 

@@ -20,8 +20,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class FileResourceProviderTest {
 
@@ -34,12 +34,12 @@ public class FileResourceProviderTest {
     FileResourceProvider testProvider =
         new FileResourceProvider(testSrc, testDest, testExtractionDest, testGcloudExecutableName);
 
-    Assert.assertEquals(testSrc, testProvider.getArchiveSource());
-    Assert.assertEquals(testDest, testProvider.getArchiveDestination());
-    Assert.assertEquals(testExtractionDest, testProvider.getArchiveExtractionDestination());
-    Assert.assertEquals(
+    Assertions.assertEquals(testSrc, testProvider.getArchiveSource());
+    Assertions.assertEquals(testDest, testProvider.getArchiveDestination());
+    Assertions.assertEquals(testExtractionDest, testProvider.getArchiveExtractionDestination());
+    Assertions.assertEquals(
         testExtractionDest.resolve("google-cloud-sdk"), testProvider.getExtractedSdkHome());
-    Assert.assertEquals(
+    Assertions.assertEquals(
         testExtractionDest
             .resolve("google-cloud-sdk")
             .resolve("bin")

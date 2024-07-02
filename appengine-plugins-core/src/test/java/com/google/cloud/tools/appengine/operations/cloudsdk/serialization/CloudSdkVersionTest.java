@@ -16,15 +16,15 @@
 
 package com.google.cloud.tools.appengine.operations.cloudsdk.serialization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CloudSdkVersionTest {
 
@@ -32,9 +32,9 @@ public class CloudSdkVersionTest {
   public void testConstructor_null() {
     try {
       new CloudSdkVersion(null);
-      Assert.fail();
+      Assertions.fail();
     } catch (NullPointerException ex) {
-      Assert.assertNotNull(ex.getMessage());
+      Assertions.assertNotNull(ex.getMessage());
     }
   }
 
@@ -42,9 +42,9 @@ public class CloudSdkVersionTest {
   public void testConstructor_emptyString() {
     try {
       new CloudSdkVersion("");
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertNotNull(ex.getMessage());
+      Assertions.assertNotNull(ex.getMessage());
     }
   }
 
@@ -60,9 +60,9 @@ public class CloudSdkVersionTest {
   public void testConstructor_preReleaseBeforeNumber() {
     try {
       new CloudSdkVersion("v1.beta.3-1.0.0");
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertNotNull(ex.getMessage());
+      Assertions.assertNotNull(ex.getMessage());
     }
   }
 
@@ -70,9 +70,9 @@ public class CloudSdkVersionTest {
   public void testConstructor_missingRequiredNumbers() {
     try {
       new CloudSdkVersion("1.0");
-      Assert.fail();
+      Assertions.fail();
     } catch (IllegalArgumentException ex) {
-      Assert.assertNotNull(ex.getMessage());
+      Assertions.assertNotNull(ex.getMessage());
     }
   }
 

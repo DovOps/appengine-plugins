@@ -16,67 +16,69 @@
 
 package com.google.cloud.tools.project;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ServiceNameValidatorTest {
 
   @Test
   public void testDomain() {
-    Assert.assertFalse(ServiceNameValidator.validate("google.com:mystore"));
+    Assertions.assertFalse(ServiceNameValidator.validate("google.com:mystore"));
   }
 
   @Test
   public void testPartition() {
-    Assert.assertFalse(ServiceNameValidator.validate("s~google.com:mystore"));
+    Assertions.assertFalse(ServiceNameValidator.validate("s~google.com:mystore"));
   }
 
   @Test
   public void testOneWord() {
-    Assert.assertTrue(ServiceNameValidator.validate("word"));
+    Assertions.assertTrue(ServiceNameValidator.validate("word"));
   }
 
   @Test
   public void testUpperCase() {
-    Assert.assertTrue(ServiceNameValidator.validate("WORD"));
+    Assertions.assertTrue(ServiceNameValidator.validate("WORD"));
   }
 
   @Test
   public void testLongWord() {
     boolean validate =
         ServiceNameValidator.validate(
-            "012345678901234567890123456789012345678901234567890123456789"
-                + "012345678901234567890123456789012345678901234567890");
-    Assert.assertFalse(validate);
+            """
+            012345678901234567890123456789012345678901234567890123456789\
+            012345678901234567890123456789012345678901234567890\
+            """);
+    Assertions.assertFalse(validate);
   }
 
   @Test
   public void testContainsSpace() {
-    Assert.assertFalse(ServiceNameValidator.validate("com google eclipse"));
+    Assertions.assertFalse(ServiceNameValidator.validate("com google eclipse"));
   }
 
   @Test
   public void testEmptyString() {
-    Assert.assertFalse(ServiceNameValidator.validate(""));
+    Assertions.assertFalse(ServiceNameValidator.validate(""));
   }
 
   @Test
   public void testNull() {
-    Assert.assertFalse(ServiceNameValidator.validate(null));
+    Assertions.assertFalse(ServiceNameValidator.validate(null));
   }
 
   @Test
   public void testBeginsWithHyphen() {
-    Assert.assertFalse(ServiceNameValidator.validate("-foo"));
+    Assertions.assertFalse(ServiceNameValidator.validate("-foo"));
   }
 
   @Test
   public void testEndsWithHyphen() {
-    Assert.assertFalse(ServiceNameValidator.validate("-bar"));
+    Assertions.assertFalse(ServiceNameValidator.validate("-bar"));
   }
 
   @Test
   public void testContainsHyphen() {
-    Assert.assertTrue(ServiceNameValidator.validate("foo-bar"));
+    Assertions.assertTrue(ServiceNameValidator.validate("foo-bar"));
   }
 }

@@ -17,15 +17,15 @@
 package com.google.cloud.tools.maven.deploy;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DeployDosMojoTest {
 
   @Mock private Deployer.Factory factory;
@@ -33,7 +33,7 @@ public class DeployDosMojoTest {
 
   @InjectMocks private DeployDosMojo testMojo;
 
-  @Before
+  @BeforeEach
   public void setUp() throws MojoExecutionException {
     Mockito.when(factory.newDeployer(testMojo)).thenReturn(deployer);
   }

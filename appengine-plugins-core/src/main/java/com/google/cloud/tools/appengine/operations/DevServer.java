@@ -30,6 +30,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -40,7 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 import org.xml.sax.SAXException;
 
 /** Classic Java SDK based implementation of the Dev App Server. */
@@ -90,7 +90,7 @@ public class DevServer {
     }
     int jdkVersion = getJdkMajorVersion(jdkVersionString);
     log.config(
-        String.format("JDK Version found: %s, Parsed to be %d", jdkVersionString, jdkVersion));
+        "JDK Version found: %s, Parsed to be %d".formatted(jdkVersionString, jdkVersion));
     if (jdkVersion > 8) {
       addJpmsRestrictionArguments(jvmArguments);
     }
@@ -143,7 +143,7 @@ public class DevServer {
     try {
       Path workingDirectory = null;
       if (config.getServices().size() == 1) {
-        workingDirectory = config.getServices().get(0);
+        workingDirectory = config.getServices().getFirst();
       }
       runner.run(jvmArguments, arguments, appEngineEnvironment, workingDirectory);
     } catch (ProcessHandlerException | IOException ex) {
@@ -321,9 +321,11 @@ public class DevServer {
     for (String key : newEnvironment.keySet()) {
       if (existingEnvironment.containsKey(key)) {
         log.warning(
-            String.format(
-                "Found duplicate environment variable key '%s' across "
-                    + "appengine-web.xml files in the following service: %s",
+            (
+                """
+                Found duplicate environment variable key '%s' across \
+                appengine-web.xml files in the following service: %s\
+                """).formatted(
                 key, service));
       }
     }

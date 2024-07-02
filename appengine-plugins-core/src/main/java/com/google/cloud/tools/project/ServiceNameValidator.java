@@ -17,7 +17,7 @@
 package com.google.cloud.tools.project;
 
 import com.google.common.annotations.Beta;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Each service and each version must have a name. A name can contain numbers, letters, and hyphens.

@@ -16,15 +16,16 @@
 
 package com.google.cloud.tools.managedcloudsdk.install;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
-import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /** Helper for archives in src/test/resources/genericArchives */
 public class GenericArchivesVerifier {
@@ -35,17 +36,17 @@ public class GenericArchivesVerifier {
   private static final Path FILE_2 = SUB.resolve("file2.txt");
 
   public static void assertArchiveExtraction(Path testRoot) {
-    Assert.assertTrue(Files.isDirectory(testRoot.resolve(ROOT)));
-    Assert.assertTrue(Files.isRegularFile(testRoot.resolve(FILE_1)));
-    Assert.assertTrue(Files.isDirectory(testRoot.resolve(SUB)));
-    Assert.assertTrue(Files.isRegularFile(testRoot.resolve(FILE_2)));
+    Assertions.assertTrue(Files.isDirectory(testRoot.resolve(ROOT)));
+    Assertions.assertTrue(Files.isRegularFile(testRoot.resolve(FILE_1)));
+    Assertions.assertTrue(Files.isDirectory(testRoot.resolve(SUB)));
+    Assertions.assertTrue(Files.isRegularFile(testRoot.resolve(FILE_2)));
   }
 
   public static void assertFilePermissions(Path testRoot) throws IOException {
     Path file1 = testRoot.resolve(FILE_1); // mode 664
     PosixFileAttributeView allAttributesFile1 =
         Files.getFileAttributeView(file1, PosixFileAttributeView.class);
-    MatcherAssert.assertThat(
+    assertThat(
         allAttributesFile1.readAttributes().permissions(),
         Matchers.containsInAnyOrder(
             PosixFilePermission.OWNER_READ,
@@ -55,7 +56,7 @@ public class GenericArchivesVerifier {
     Path file2 = testRoot.resolve(FILE_2); // mode 777
     PosixFileAttributeView allAttributesFile2 =
         Files.getFileAttributeView(file2, PosixFileAttributeView.class);
-    MatcherAssert.assertThat(
+    assertThat(
         allAttributesFile2.readAttributes().permissions(),
         Matchers.containsInAnyOrder(PosixFilePermission.values()));
   }

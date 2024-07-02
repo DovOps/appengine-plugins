@@ -18,9 +18,9 @@ package com.google.cloud.tools.appengine.configuration;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /**
  * Arguments needed to stage an App Engine app.yaml based application. Null return values indicate

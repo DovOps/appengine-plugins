@@ -20,26 +20,27 @@ import com.google.cloud.tools.managedcloudsdk.ConsoleListener;
 import com.google.cloud.tools.managedcloudsdk.process.AsyncStreamHandler;
 import com.google.cloud.tools.managedcloudsdk.process.ProcessExecutor;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for {@link CommandRunner} */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CommandRunnerTest {
 
-  @Rule public TemporaryFolder testDir = new TemporaryFolder();
+  @TempDir
+  public File testDir;
 
   @Mock private ProcessExecutor mockProcessExecutor;
   @Mock private ConsoleListener mockConsoleListener;
@@ -52,10 +53,10 @@ public class CommandRunnerTest {
 
   private CommandRunner testCommandRunner;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException, InterruptedException {
     fakeCommand = Arrays.asList("gcloud", "test", "--option");
-    fakeWorkingDirectory = testDir.getRoot().toPath();
+    fakeWorkingDirectory = testDir.toPath();
     fakeEnvironment = ImmutableMap.of("testKey", "testValue");
 
     Mockito.when(mockStreamHandlerFactory.newHandler(mockConsoleListener))
@@ -104,11 +105,11 @@ public class CommandRunnerTest {
     try {
       testCommandRunner.run(
           fakeCommand, fakeWorkingDirectory, fakeEnvironment, mockConsoleListener);
-      Assert.fail("CommandExitException expected but not found.");
+      Assertions.fail("CommandExitException expected but not found.");
     } catch (CommandExitException ex) {
-      Assert.assertEquals("Process failed with exit code: 10", ex.getMessage());
-      Assert.assertEquals(10, ex.getExitCode());
-      Assert.assertEquals(null, ex.getErrorLog());
+      Assertions.assertEquals("Process failed with exit code: 10", ex.getMessage());
+      Assertions.assertEquals(10, ex.getExitCode());
+      Assertions.assertEquals(null, ex.getErrorLog());
     }
     verifyCommandExecution();
   }

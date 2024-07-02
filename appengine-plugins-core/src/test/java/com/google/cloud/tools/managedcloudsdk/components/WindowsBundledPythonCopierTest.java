@@ -20,31 +20,32 @@ import com.google.cloud.tools.managedcloudsdk.command.CommandCaller;
 import com.google.cloud.tools.managedcloudsdk.command.CommandExecutionException;
 import com.google.cloud.tools.managedcloudsdk.command.CommandExitException;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WindowsBundledPythonCopierTest {
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  public File temporaryFolder;
 
   @Mock private CommandCaller mockCommandCaller;
   private Path fakeGcloud;
 
-  @Before
+  @BeforeEach
   public void setUp() throws InterruptedException, CommandExitException, CommandExecutionException {
     fakeGcloud = Paths.get("my/path/to/fake-gcloud");
     Mockito.when(
@@ -62,46 +63,46 @@ public class WindowsBundledPythonCopierTest {
         new WindowsBundledPythonCopier(fakeGcloud, mockCommandCaller);
     Map<String, String> testEnv = testCopier.copyPython();
 
-    Assert.assertEquals(ImmutableMap.of("CLOUDSDK_PYTHON", "copied-python"), testEnv);
+    Assertions.assertEquals(ImmutableMap.of("CLOUDSDK_PYTHON", "copied-python"), testEnv);
   }
 
   @Test
   public void testDeleteCopiedPython() throws IOException {
-    Path pythonHome = temporaryFolder.newFolder("python").toPath();
-    Path executable = temporaryFolder.newFile("python/python.exe").toPath();
-    Assert.assertTrue(Files.exists(executable));
+    Path pythonHome = newFolder(temporaryFolder, "python").toPath();
+    Path executable = File.createTempFile("python/python.exe", null, temporaryFolder).toPath();
+    Assertions.assertTrue(Files.exists(executable));
 
     WindowsBundledPythonCopier.deleteCopiedPython(executable.toString());
-    Assert.assertFalse(Files.exists(executable));
-    Assert.assertFalse(Files.exists(pythonHome));
+    Assertions.assertFalse(Files.exists(executable));
+    Assertions.assertFalse(Files.exists(pythonHome));
   }
 
   @Test
   public void testDeleteCopiedPython_caseInsensitivity() throws IOException {
-    Path pythonHome = temporaryFolder.newFolder("python").toPath();
-    Path executable = temporaryFolder.newFile("python/PyThOn.EXE").toPath();
-    Assert.assertTrue(Files.exists(executable));
-    Assert.assertTrue(executable.toString().endsWith("PyThOn.EXE"));
+    Path pythonHome = newFolder(temporaryFolder, "python").toPath();
+    Path executable = File.createTempFile("python/PyThOn.EXE", null, temporaryFolder).toPath();
+    Assertions.assertTrue(Files.exists(executable));
+    Assertions.assertTrue(executable.toString().endsWith("PyThOn.EXE"));
 
     WindowsBundledPythonCopier.deleteCopiedPython(executable.toString());
-    Assert.assertFalse(Files.exists(executable));
-    Assert.assertFalse(Files.exists(pythonHome));
+    Assertions.assertFalse(Files.exists(executable));
+    Assertions.assertFalse(Files.exists(pythonHome));
   }
 
   @Test
   public void testDeleteCopiedPython_unexpectedLocation() throws IOException {
-    temporaryFolder.newFolder("unexpected");
-    Path unexpected = temporaryFolder.newFile("unexpected/file.ext").toPath();
-    Assert.assertTrue(Files.exists(unexpected));
+    newFolder(temporaryFolder, "unexpected");
+    Path unexpected = File.createTempFile("unexpected/file.ext", null, temporaryFolder).toPath();
+    Assertions.assertTrue(Files.exists(unexpected));
 
     WindowsBundledPythonCopier.deleteCopiedPython(unexpected.toString());
-    Assert.assertTrue(Files.exists(unexpected));
+    Assertions.assertTrue(Files.exists(unexpected));
   }
 
   @Test
   public void testDeleteCopiedPython_nonExistingDirectory() {
-    Path executable = temporaryFolder.getRoot().toPath().resolve("python/python.exe");
-    Assert.assertFalse(Files.exists(executable));
+    Path executable = temporaryFolder.toPath().resolve("python/python.exe");
+    Assertions.assertFalse(Files.exists(executable));
 
     WindowsBundledPythonCopier.deleteCopiedPython("python/python.exe");
     // Ensure no runtime exception is thrown.
@@ -109,22 +110,31 @@ public class WindowsBundledPythonCopierTest {
 
   @Test
   public void testIsUnderTempDirectory_variableTemp() {
-    Assert.assertTrue(
+    Assertions.assertTrue(
         WindowsBundledPythonCopier.isUnderTempDirectory(
             "/temp/prefix/some/file.ext", ImmutableMap.of("TEMP", "/temp/prefix")));
   }
 
   @Test
   public void testIsUnderTempDirectory_variableTmp() {
-    Assert.assertTrue(
+    Assertions.assertTrue(
         WindowsBundledPythonCopier.isUnderTempDirectory(
             "/tmp/prefix/some/file.ext", ImmutableMap.of("TMP", "/tmp/prefix")));
   }
 
   @Test
   public void testIsUnderTempDirectory_noTempVariables() {
-    Assert.assertFalse(
+    Assertions.assertFalse(
         WindowsBundledPythonCopier.isUnderTempDirectory(
             "/tmp/prefix/some/file.ext", ImmutableMap.of()));
+  }
+
+  private static File newFolder(File root, String... subDirs) throws IOException {
+    String subFolder = String.join("/", subDirs);
+    File result = new File(root, subFolder);
+    if (!result.mkdirs()) {
+      throw new IOException("Couldn't create folders " + root);
+    }
+    return result;
   }
 }

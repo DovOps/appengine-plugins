@@ -19,13 +19,13 @@ package com.google.cloud.tools.appengine.operations.cloudsdk.process;
 import com.google.cloud.tools.appengine.AppEngineException;
 import com.google.cloud.tools.appengine.operations.cloudsdk.internal.process.WaitingProcessOutputLineListener;
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /** Process handler that mimics the previous behavior of ProcessRunner. */
 public class LegacyProcessHandler implements ProcessHandler {

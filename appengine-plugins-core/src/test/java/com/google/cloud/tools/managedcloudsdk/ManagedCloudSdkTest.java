@@ -26,6 +26,7 @@ import com.google.cloud.tools.managedcloudsdk.components.SdkComponent;
 import com.google.cloud.tools.managedcloudsdk.components.WindowsBundledPythonCopierTestHelper;
 import com.google.cloud.tools.managedcloudsdk.install.SdkInstallerException;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,18 +36,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 /** Tests for full functionality of the {@link ManagedCloudSdk}. */
 public class ManagedCloudSdkTest {
 
-  @Rule public TemporaryFolder tempDir = new TemporaryFolder();
+  @TempDir
+  public File tempDir;
 
   private static final String FIXED_VERSION = "447.0.0";
   private static final Map<String, String> EMPTY_MAP = Collections.emptyMap();
@@ -66,9 +68,9 @@ public class ManagedCloudSdkTest {
   private Path userHome;
   private final Properties fakeProperties = new Properties();
 
-  @Before
+  @BeforeEach
   public void setUp() {
-    userHome = tempDir.getRoot().toPath();
+    userHome = tempDir.toPath();
     fakeProperties.put("user.home", userHome.toString());
   }
 
@@ -80,30 +82,30 @@ public class ManagedCloudSdkTest {
     ManagedCloudSdk testSdk =
         new ManagedCloudSdk(new Version(FIXED_VERSION), userHome, OsInfo.getSystemOsInfo());
 
-    Assert.assertFalse(testSdk.isInstalled());
-    Assert.assertFalse(testSdk.hasComponent(testComponent));
-    Assert.assertFalse(testSdk.isUpToDate());
+    Assertions.assertFalse(testSdk.isInstalled());
+    Assertions.assertFalse(testSdk.hasComponent(testComponent));
+    Assertions.assertFalse(testSdk.isUpToDate());
 
     testSdk.newInstaller().install(testProgressListener, testListener);
 
-    Assert.assertTrue(testSdk.isInstalled());
-    Assert.assertFalse(testSdk.hasComponent(testComponent));
-    Assert.assertTrue(testSdk.isUpToDate());
+    Assertions.assertTrue(testSdk.isInstalled());
+    Assertions.assertFalse(testSdk.hasComponent(testComponent));
+    Assertions.assertTrue(testSdk.isUpToDate());
 
     testSdk
         .newComponentInstaller()
         .installComponent(testComponent, testProgressListener, testListener);
 
-    Assert.assertTrue(testSdk.isInstalled());
-    Assert.assertTrue(testSdk.hasComponent(testComponent));
-    Assert.assertTrue(testSdk.isUpToDate());
+    Assertions.assertTrue(testSdk.isInstalled());
+    Assertions.assertTrue(testSdk.hasComponent(testComponent));
+    Assertions.assertTrue(testSdk.isUpToDate());
 
     // Make sure we can't update a versioned cloud SDK.
     try {
       testSdk.newUpdater();
-      Assert.fail("UnsupportedOperationException expected but not thrown");
+      Assertions.fail("UnsupportedOperationException expected but not thrown");
     } catch (UnsupportedOperationException ex) {
-      Assert.assertEquals("Cannot update a fixed version SDK.", ex.getMessage());
+      Assertions.assertEquals("Cannot update a fixed version SDK.", ex.getMessage());
     }
   }
 
@@ -116,25 +118,25 @@ public class ManagedCloudSdkTest {
     ManagedCloudSdk testSdk =
         new ManagedCloudSdk(Version.LATEST, userHome, OsInfo.getSystemOsInfo());
 
-    Assert.assertFalse(testSdk.isInstalled());
-    Assert.assertFalse(testSdk.isUpToDate());
+    Assertions.assertFalse(testSdk.isInstalled());
+    Assertions.assertFalse(testSdk.isUpToDate());
 
     testSdk.newInstaller().install(testProgressListener, testListener);
 
-    Assert.assertTrue(testSdk.isInstalled());
-    Assert.assertTrue(testSdk.isUpToDate());
+    Assertions.assertTrue(testSdk.isInstalled());
+    Assertions.assertTrue(testSdk.isUpToDate());
 
     // Forcibly downgrade the cloud SDK so we can test updating.
     downgradeCloudSdk(testSdk);
 
-    Assert.assertTrue(testSdk.isInstalled());
-    Assert.assertFalse(testSdk.isUpToDate());
+    Assertions.assertTrue(testSdk.isInstalled());
+    Assertions.assertFalse(testSdk.isUpToDate());
 
     testSdk.newUpdater().update(testProgressListener, testListener);
 
-    Assert.assertTrue(testSdk.isInstalled());
-    Assert.assertFalse(testSdk.hasComponent(testComponent));
-    Assert.assertTrue(testSdk.isUpToDate());
+    Assertions.assertTrue(testSdk.isInstalled());
+    Assertions.assertFalse(testSdk.hasComponent(testComponent));
+    Assertions.assertTrue(testSdk.isUpToDate());
 
     testSdk
         .newComponentInstaller()
@@ -142,9 +144,9 @@ public class ManagedCloudSdkTest {
 
     new CloudSdk.Builder().sdkPath(testSdk.getSdkHome()).build().validateAppEngineJavaComponents();
 
-    Assert.assertTrue(testSdk.isInstalled());
-    Assert.assertTrue(testSdk.hasComponent(testComponent));
-    Assert.assertTrue(testSdk.isUpToDate());
+    Assertions.assertTrue(testSdk.isInstalled());
+    Assertions.assertTrue(testSdk.hasComponent(testComponent));
+    Assertions.assertTrue(testSdk.isUpToDate());
   }
 
   @Test
@@ -155,16 +157,16 @@ public class ManagedCloudSdkTest {
     ManagedCloudSdk testSdk =
         new ManagedCloudSdk(Version.LATEST, userHome, OsInfo.getSystemOsInfo());
 
-    Assert.assertFalse(testSdk.isInstalled());
-    Assert.assertFalse(testSdk.isUpToDate());
+    Assertions.assertFalse(testSdk.isInstalled());
+    Assertions.assertFalse(testSdk.isUpToDate());
 
     testSdk
         .newInstaller(new HashSet<>(Arrays.asList("app-engine-java")), Collections.emptyMap())
         .install(testProgressListener, testListener);
 
-    Assert.assertTrue(testSdk.isInstalled());
-    Assert.assertTrue(testSdk.isUpToDate());
-    Assert.assertTrue(testSdk.hasComponent(testComponent));
+    Assertions.assertTrue(testSdk.isInstalled());
+    Assertions.assertTrue(testSdk.isUpToDate());
+    Assertions.assertTrue(testSdk.hasComponent(testComponent));
   }
 
   private static final Path CLOUD_SDK_PARTIAL_PATH =
@@ -180,7 +182,7 @@ public class ManagedCloudSdkTest {
             fakeProperties,
             ImmutableMap.of("LOCALAPPDATA", localAppData.toString()));
 
-    Assert.assertEquals(localAppData.resolve(CLOUD_SDK_PARTIAL_PATH_WINDOWS), windowsPath);
+    Assertions.assertEquals(localAppData.resolve(CLOUD_SDK_PARTIAL_PATH_WINDOWS), windowsPath);
   }
 
   @Test
@@ -189,7 +191,7 @@ public class ManagedCloudSdkTest {
         Files.createDirectories(userHome.resolve("Library").resolve("Application Support"));
     Path macPath =
         ManagedCloudSdk.getOsSpecificManagedSdkHome(OsInfo.Name.MAC, fakeProperties, EMPTY_MAP);
-    Assert.assertEquals(expectedPath.resolve(CLOUD_SDK_PARTIAL_PATH), macPath);
+    Assertions.assertEquals(expectedPath.resolve(CLOUD_SDK_PARTIAL_PATH), macPath);
   }
 
   @Test
@@ -198,7 +200,7 @@ public class ManagedCloudSdkTest {
 
     Path linuxPath =
         ManagedCloudSdk.getOsSpecificManagedSdkHome(OsInfo.Name.LINUX, fakeProperties, EMPTY_MAP);
-    Assert.assertEquals(expectedPath, linuxPath);
+    Assertions.assertEquals(expectedPath, linuxPath);
   }
 
   @Test
@@ -208,7 +210,7 @@ public class ManagedCloudSdkTest {
     Path windowsPath =
         ManagedCloudSdk.getOsSpecificManagedSdkHome(OsInfo.Name.WINDOWS, fakeProperties, EMPTY_MAP);
 
-    Assert.assertEquals(expectedPath, windowsPath);
+    Assertions.assertEquals(expectedPath, windowsPath);
   }
 
   @Test
@@ -222,7 +224,7 @@ public class ManagedCloudSdkTest {
             fakeProperties,
             ImmutableMap.of("LOCALAPPDATA", localAppData.toString()));
 
-    Assert.assertEquals(expectedPath, windowsPath);
+    Assertions.assertEquals(expectedPath, windowsPath);
   }
 
   @Test
@@ -231,7 +233,7 @@ public class ManagedCloudSdkTest {
 
     Path macPath =
         ManagedCloudSdk.getOsSpecificManagedSdkHome(OsInfo.Name.MAC, fakeProperties, EMPTY_MAP);
-    Assert.assertEquals(expectedPath, macPath);
+    Assertions.assertEquals(expectedPath, macPath);
   }
 
   private void downgradeCloudSdk(ManagedCloudSdk testSdk)

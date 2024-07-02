@@ -16,7 +16,7 @@
 
 package com.google.cloud.tools.appengine.operations;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,23 +27,24 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.internal.process.Pro
 import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandler;
 import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandlerException;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GcloudRunnerTest {
 
-  @Rule public TemporaryFolder testFolder = new TemporaryFolder();
+  @TempDir
+  public File testFolder;
 
   @Mock private CloudSdk sdk;
   private Path gcloudPath;
@@ -56,15 +57,15 @@ public class GcloudRunnerTest {
   @Mock private Process process;
   @Mock private Map<String, String> processEnv;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
-    credentialFile = testFolder.newFile("credential.file").toPath();
+    credentialFile = File.createTempFile("credential.file", null, testFolder).toPath();
     flagsFiles =
         ImmutableList.of(
-            testFolder.newFile("gcloud1.yaml").toPath(),
-            testFolder.newFile("gcloud2.yaml").toPath());
-    gcloudPath = testFolder.getRoot().toPath().resolve("gcloud");
-    workingDirectory = testFolder.getRoot().toPath();
+            File.createTempFile("gcloud1.yaml", null, testFolder).toPath(),
+            File.createTempFile("gcloud2.yaml", null, testFolder).toPath());
+    gcloudPath = testFolder.toPath().resolve("gcloud");
+    workingDirectory = testFolder.toPath();
     when(sdk.getGCloudPath()).thenReturn(gcloudPath);
 
     when(processBuilderFactory.newProcessBuilder()).thenReturn(processBuilder);
@@ -109,7 +110,7 @@ public class GcloudRunnerTest {
                 "--credential-file-override",
                 credentialFile.toAbsolutePath().toString(),
                 "--flags-file",
-                flagsFiles.get(0).toAbsolutePath().toString(),
+                flagsFiles.getFirst().toAbsolutePath().toString(),
                 "--flags-file",
                 flagsFiles.get(1).toAbsolutePath().toString()));
     Mockito.verify(processBuilder).start();

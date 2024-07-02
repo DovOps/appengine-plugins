@@ -17,7 +17,7 @@
 package com.google.cloud.tools.appengine.operations.cloudsdk.internal.process;
 
 import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessExitListener;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /** A {@link ProcessExitListener} that records the most recent process exit code it encountered. */
 public class ExitCodeRecorderProcessExitListener implements ProcessExitListener {

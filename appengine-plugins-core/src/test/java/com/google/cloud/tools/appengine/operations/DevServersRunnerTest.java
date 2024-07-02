@@ -25,24 +25,25 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandl
 import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandlerException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NullAway")
 public class DevServersRunnerTest {
 
-  @Rule public TemporaryFolder testFolder = new TemporaryFolder();
+  @TempDir
+  public File testFolder;
 
   @Mock private CloudSdk sdk;
   @Mock private ProcessHandler processHandler;
@@ -56,14 +57,14 @@ public class DevServersRunnerTest {
   private Path workingDirectory;
   private Path javaHomePath;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
-    javaExecutablePath = testFolder.getRoot().toPath().resolve("java.fake");
-    javaHomePath = testFolder.getRoot().toPath().resolve("java-sdk-root");
-    appengineToolsJar = testFolder.getRoot().toPath().resolve("appengine.tools");
-    appengineSdkForJavaPath = testFolder.getRoot().toPath().resolve("appengine-sdk-root");
+    javaExecutablePath = testFolder.toPath().resolve("java.fake");
+    javaHomePath = testFolder.toPath().resolve("java-sdk-root");
+    appengineToolsJar = testFolder.toPath().resolve("appengine.tools");
+    appengineSdkForJavaPath = testFolder.toPath().resolve("appengine-sdk-root");
 
-    workingDirectory = testFolder.getRoot().toPath();
+    workingDirectory = testFolder.toPath();
     when(sdk.getJavaExecutablePath()).thenReturn(javaExecutablePath);
     when(sdk.getAppEngineToolsJar()).thenReturn(appengineToolsJar);
     when(sdk.getAppEngineSdkForJavaPath()).thenReturn(appengineSdkForJavaPath);

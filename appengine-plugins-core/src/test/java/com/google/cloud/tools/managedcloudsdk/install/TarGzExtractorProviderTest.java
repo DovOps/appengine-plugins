@@ -16,7 +16,10 @@
 
 package com.google.cloud.tools.managedcloudsdk.install;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import com.google.cloud.tools.managedcloudsdk.ProgressListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -24,27 +27,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TarGzExtractorProviderTest {
 
-  @Rule public TemporaryFolder tmp = new TemporaryFolder();
+  @TempDir
+  public File tmp;
   @Mock private ProgressListener mockProgressListener;
 
   private final TarGzExtractorProvider tarGzExtractorProvider = new TarGzExtractorProvider();
 
   @Test
   public void testCall() throws URISyntaxException, IOException {
-    Path extractionRoot = tmp.getRoot().toPath();
+    Path extractionRoot = tmp.toPath();
     Path testArchive = getResource("genericArchives/test.tar.gz");
 
     tarGzExtractorProvider.extract(testArchive, extractionRoot, mockProgressListener);
@@ -61,15 +63,15 @@ public class TarGzExtractorProviderTest {
 
   @Test
   public void testZipSlipVulnerability_windows() throws URISyntaxException {
-    Assume.assumeTrue(System.getProperty("os.name").startsWith("Windows"));
+    Assumptions.assumeTrue(System.getProperty("os.name").startsWith("Windows"));
 
-    Path extractionRoot = tmp.getRoot().toPath();
+    Path extractionRoot = tmp.toPath();
     Path testArchive = getResource("zipSlipSamples/zip-slip-win.tar.gz");
     try {
       tarGzExtractorProvider.extract(testArchive, extractionRoot, mockProgressListener);
-      Assert.fail("IOException expected");
+      Assertions.fail("IOException expected");
     } catch (IOException expected) {
-      MatcherAssert.assertThat(
+      assertThat(
           expected.getMessage(),
           CoreMatchers.startsWith("Blocked unzipping files outside destination: "));
     }
@@ -77,15 +79,15 @@ public class TarGzExtractorProviderTest {
 
   @Test
   public void testZipSlipVulnerability_unix() throws URISyntaxException {
-    Assume.assumeTrue(!System.getProperty("os.name").startsWith("Windows"));
+    Assumptions.assumeTrue(!System.getProperty("os.name").startsWith("Windows"));
 
-    Path extractionRoot = tmp.getRoot().toPath();
+    Path extractionRoot = tmp.toPath();
     Path testArchive = getResource("zipSlipSamples/zip-slip.tar.gz");
     try {
       tarGzExtractorProvider.extract(testArchive, extractionRoot, mockProgressListener);
-      Assert.fail("IOException expected");
+      Assertions.fail("IOException expected");
     } catch (IOException expected) {
-      MatcherAssert.assertThat(
+      assertThat(
           expected.getMessage(),
           CoreMatchers.startsWith("Blocked unzipping files outside destination: "));
     }
@@ -93,7 +95,7 @@ public class TarGzExtractorProviderTest {
 
   private Path getResource(String resourcePath) throws URISyntaxException {
     Path resource = Paths.get(getClass().getClassLoader().getResource(resourcePath).toURI());
-    Assert.assertTrue(Files.exists(resource));
+    Assertions.assertTrue(Files.exists(resource));
     return resource;
   }
 }

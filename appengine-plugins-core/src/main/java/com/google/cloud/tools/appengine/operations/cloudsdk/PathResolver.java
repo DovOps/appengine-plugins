@@ -18,6 +18,7 @@ package com.google.cloud.tools.appengine.operations.cloudsdk;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /** Resolve paths with Google Cloud SDK and Python defaults. */
 public class PathResolver implements CloudSdkResolver {

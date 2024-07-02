@@ -23,13 +23,13 @@ import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandl
 import com.google.cloud.tools.appengine.operations.cloudsdk.process.ProcessHandlerException;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 public class DevAppServerRunner {
   private static final Logger logger = Logger.getLogger(DevAppServerRunner.class.getName());

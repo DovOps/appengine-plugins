@@ -16,9 +16,9 @@
 
 package com.google.cloud.tools.maven.it;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.cloud.tools.maven.it.util.UrlUtils;
 import com.google.cloud.tools.maven.it.verifier.StandardVerifier;
@@ -31,26 +31,23 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(JUnitParamsRunner.class)
 public class AbstractRunMojoIntegrationTest extends AbstractMojoIntegrationTest {
 
   private int serverPort;
 
-  @Before
+  @BeforeEach
   public void initPorts() throws IOException {
     serverPort = SocketUtil.findPort();
   }
 
-  @Test
-  @Parameters
+  @ParameterizedTest
+  @MethodSource("parametersForTestRun")
   public void testRun(String[] profiles, String expectedModuleName)
       throws IOException, VerificationException, InterruptedException, ExecutionException {
 
@@ -89,11 +86,11 @@ public class AbstractRunMojoIntegrationTest extends AbstractMojoIntegrationTest 
 
   /** Provides parameters for {@link #testRun(String[], String)}. */
   @SuppressWarnings("unused")
-  private Object[] parametersForTestRun() {
+  private static Object[] parametersForTestRun() {
     List<Object[]> result = new ArrayList<>();
-    result.add(new Object[] {new String[0], "standard-project"});
+    result.add(new Object[]{new String[0], "standard-project"});
     result.add(
-        new Object[] {new String[] {"base-it-profile", "services"}, "standard-project-services"});
+        new Object[]{new String[]{"base-it-profile", "services"}, "standard-project-services"});
     return result.toArray(new Object[0]);
   }
 

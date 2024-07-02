@@ -81,9 +81,12 @@ public class Runner {
   }
 
   static final String NON_STANDARD_APPLICATION_ERROR =
-      "\nCould not find appengine-web.xml all services, perhaps you need to run "
-          + "'mvn package appengine:run/start'."
-          + "\nDev App Server only supports appengine-web.xml based Java applications.";
+      """
+      
+      Could not find appengine-web.xml all services, perhaps you need to run \
+      'mvn package appengine:run/start'.
+      Dev App Server only supports appengine-web.xml based Java applications.\
+      """;
 
   @VisibleForTesting
   List<Path> processServices() throws MojoExecutionException {
